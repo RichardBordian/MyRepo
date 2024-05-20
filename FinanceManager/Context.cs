@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FinanceManager.Models;
+using Microsoft.EntityFrameworkCore;
 
-namespace FinanceManager.Models
+namespace FinanceManager
 {
     public class Context : DbContext
     {
@@ -9,9 +10,9 @@ namespace FinanceManager.Models
             Database.EnsureCreated();
         }
 
-        public Context(DbContextOptions<Context> options) 
-            : base(options) 
-        { 
+        public Context(DbContextOptions<Context> options)
+            : base(options)
+        {
         }
 
         public virtual DbSet<Transaction> Transactions { get; set; }

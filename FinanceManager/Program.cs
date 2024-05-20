@@ -1,3 +1,4 @@
+using FinanceManager.Services;
 
 namespace FinanceManager
 {
@@ -13,6 +14,12 @@ namespace FinanceManager
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            Context context = new Context();
+            ReportServices reportServices = new ReportServices(context);
+            StorageServices storageServices = new StorageServices(context);
+            TransactionServices transactionServices = new TransactionServices(context);
+            CategoryServices categoryServices = new CategoryServices(context);
 
             var app = builder.Build();
 

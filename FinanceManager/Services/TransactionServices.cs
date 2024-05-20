@@ -1,42 +1,46 @@
-﻿using FinanceManager.Models;
+﻿using FinanceManager.DTO;
+using FinanceManager.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceManager.Services
 {
     public class TransactionServices
     {
-        private readonly Context _context = new Context();
+        private readonly Context _context;
 
-        public async Task<List<Transaction>> GetTransactionListAsync(int? id)
+        private TransactionServices()
+        {}
+
+        public TransactionServices(Context context) => _context = context;
+
+        public async Task<List<Transaction>> GetAllAsync()
         {
-            if (id is null)
-            {
-                return new List<Transaction>();
-            }
-
             return await _context.Transactions
-                .Include(c => c.Category)
-                .Where(c => c.Id == id)
                 .ToListAsync();
         }
 
-        public async Task<Transaction?> GetTransactionAsync(int? id)
+        public async Task<Transaction?> GetAsync(int id)
         {
-            if (id is null)
-            {
-                return null;
-            }
-
             return await _context.Transactions
                 .FirstOrDefaultAsync(x=> x.Id == id);
         }
 
-        public async Task<bool> CreateTransactionAsync(Transaction transaction)
+        public async Task<bool> CreateAsync(TransactionCreateDTO transactionData)
         {
-            if(transaction is null) 
+            if(!IsValid(transactionData)) 
             {
                 return false;
             }
+
+            var transaction = new Transaction() 
+            {
+                Name =  transactionData.Name, 
+                Date = transactionData.Date, 
+                CategoryId = transactionData.CategoryId,
+                Price = transactionData.Price,
+                Descrpition = transactionData.Descrpition,
+                StorageId = transactionData.StorageId,
+            };
 
             await _context.Transactions.AddAsync(transaction);
             await _context.SaveChangesAsync();
@@ -44,22 +48,43 @@ namespace FinanceManager.Services
             return true;
         }
 
-        public async Task<List<Transaction>> GetAllTransactionsAsync()
+        public async Task<bool> EditAsync(int id, TransactionUpdateDTO transactionData)
         {
-            return await _context.Transactions
-                .ToListAsync();
-        }
-
-        public async Task<bool> EditTransactionAsync(int? id, Transaction transaction)
-        {
-            if(id != transaction.Id)
+            if (id != transactionData.Id)
             {
                 return false;
             }
 
-            if(!_context.Transactions.Any(x=> x.Id == transaction.Id))
+            if (!_context.Transactions.Any(x => x.Id == transactionData.Id))
             {
                 return false;
+            }
+
+            var transaction = await _context.Transactions.FirstAsync(x => x.Id == id);
+
+            if (!string.IsNullOrEmpty(transactionData.Name) & transactionData.Name != transaction.Name)
+            {
+                transaction.Name = transactionData.Name;
+            }
+            if (transactionData.Date != transaction.Date)
+            {
+                transaction.Date = transactionData.Date;
+            }
+            if (transactionData.CategoryId != transaction.CategoryId)
+            {
+                transaction.CategoryId = transactionData.CategoryId;
+            }
+            if (transactionData.Price != transaction.Price)
+            {
+                transaction.Price = transactionData.Price;
+            }
+            if (transactionData.Descrpition != null & transactionData.Descrpition != transaction.Descrpition)
+            {
+                transaction.Descrpition = transactionData.Descrpition;
+            }
+            if (transactionData.StorageId != transaction.StorageId)
+            {
+                transaction.StorageId = transactionData.StorageId;
             }
 
             try
@@ -68,7 +93,7 @@ namespace FinanceManager.Services
                 await _context.SaveChangesAsync();
             }
 
-            catch (DbUpdateConcurrencyException) 
+            catch (DbUpdateConcurrencyException)
             {
                 throw new Exception("Update exception");
             }
@@ -76,13 +101,8 @@ namespace FinanceManager.Services
             return true;
         }
 
-        public async Task<bool> DeleteTransactionAsync(int? id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            if( id is null)
-            {
-                return false;
-            }
-
             var transaction = await _context.Transactions
                 .Include(c=> c.Category)
                 .FirstOrDefaultAsync(t=> t.Id == id);
@@ -95,6 +115,15 @@ namespace FinanceManager.Services
             _context.Remove(transaction);
             await _context.SaveChangesAsync();
 
+            return true;
+        }
+
+        private bool IsValid(TransactionCreateDTO transactionData)
+        {
+            if (transactionData.Name == null & _context.Transactions.FirstOrDefault(t=> t.Name == transactionData.Name) != null)
+            {
+                return false;
+            }
             return true;
         }
     }

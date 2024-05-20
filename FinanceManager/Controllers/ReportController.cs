@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using FinanceManager.Models;
 using FinanceManager.Services;
 
 namespace FinanceManager.Controllers
@@ -8,22 +7,35 @@ namespace FinanceManager.Controllers
     [ApiController]
     public class ReportController : ControllerBase
     {
-        private ReportServices _reportServices = new ReportServices();
+        private ReportServices _reportServices;
 
-        [HttpGet("{Date}")]
-        public ActionResult<Report> DailyReport(DateTime dateTime)
+        private ReportController()
+        {
+
+        }
+
+        public ReportController(ReportServices reportServices) => _reportServices = reportServices;
+
+        [HttpGet("{Daily}")]
+        public ActionResult<Report> DailyReport([FromRoute]DateTime dateTime)
         {
             var result = _reportServices.DailyReport(dateTime);
 
-            return result == null ? NotFound() : Ok(result);
+            return Ok(result);
         }
 
-        [HttpGet]
-        public ActionResult<Report> PeriodReport(DateTime startDate, DateTime endDate)
+        [HttpGet("{Period}")]
+        public ActionResult<Report> PeriodReport([FromRoute] DateTime startDate, [FromRoute]DateTime endDate)
         {
-            var result = _reportServices.PeriodReport(startDate, endDate);
-
-            return result == null ? NotFound() : Ok(result);
+            try
+            {
+                var result = _reportServices.PeriodReport(startDate, endDate);
+                return Ok(result);
+            }
+            catch 
+            {
+                return BadRequest();
+            }
         }
     }
 }

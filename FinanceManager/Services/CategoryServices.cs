@@ -1,54 +1,53 @@
-﻿using FinanceManager.Models;
+﻿using FinanceManager.DTO;
+using FinanceManager.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceManager.Services
 {
     public class CategoryServices
     {
-        private readonly Context _context = new Context();
+        private readonly Context _context;
 
-        public async Task<List<Category>> GetCategoriesAsync(bool IsIncome)
-        {
-            return await _context.Categories
-                .Include(t => t.Transactions)
-                .Where(x => x.IsIncome == IsIncome)
-                .ToListAsync();
-        }
+        private CategoryServices()
+        { }
 
-        public async Task<List<Category>> GetAllCategoriesAsync()
+        public CategoryServices(Context context) => _context = context;
+
+        public async Task<List<Category>> GetAllAsync()
         {
             return await _context.Categories
                 .ToListAsync();
         }
 
-        public async Task<bool> CreateCategoryAsync(Category category)
+        public async Task<Category?> GetAsync(int id)
         {
-            if(!CategoryIsValid(category))
-            {
-                return false;
-            }
-
-            await _context.Categories.AddAsync(category);
-            await _context.SaveChangesAsync();
-            
-            return true;
-        }
-
-        public async Task<Category?> GetCategoryAsync(int? id)
-        {
-            if (id is null)
-            {
-                return null;
-            }
-
             return await _context.Categories
                 .Include(t => t.Transactions)
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 
-        public async Task<bool> EditCategoryAsync(int? id, Category category)
+        public async Task<bool> CreateAsync(CategoryCreateDTO categoryData)
         {
-            if( id != category.Id)
+            if (!IsValid(categoryData))
+            {
+                return false;
+            }
+
+            var category = new Category()
+            { 
+                Name = categoryData.Name, 
+                IsIncome = categoryData.IsIncome 
+            };
+
+            await _context.Categories.AddAsync(category);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> EditAsync(int id, CategoryUpdateDTO categoryData)
+        {
+            if (id != categoryData.Id)
             {
                 return false;
             }
@@ -58,13 +57,23 @@ namespace FinanceManager.Services
                 return false;
             }
 
+            var category = await _context.Categories.FirstAsync(x => x.Id == id);
+
+            if (!string.IsNullOrEmpty(categoryData.Name) & categoryData.Name != categoryData.Name)
+            {
+                category.Name = categoryData.Name;
+            }
+            if (categoryData.Description != null & category.Description != categoryData.Description)
+            {
+                category.Description = categoryData.Description;
+            }
+
             try
             {
                 _context.Update(category);
                 await _context.SaveChangesAsync();
             }
-
-            catch (DbUpdateConcurrencyException) 
+            catch (DbUpdateConcurrencyException)
             {
                 throw new Exception("Update exception");
             }
@@ -72,30 +81,31 @@ namespace FinanceManager.Services
             return true;
         }
 
-        public async Task<bool> DeleteCategoryAsync(int? id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            if (id is null)
+            var category = await _context.Categories
+                .Include(t => t.Transactions)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (category is null)
             {
                 return false;
             }
 
-            var category = await _context.Categories
-                .Include(t=> t.Transactions)
-                .FirstOrDefaultAsync(c=> c.Id == id);
-
-            if(category is null)
+            if(category.Transactions.Count >0)
             {
-                return false;
+                throw new Exception("This category contain transaction");
             }
 
             _context.Categories.Remove(category);
             await _context.SaveChangesAsync();
+
             return true;
         }
-       
-        private bool CategoryIsValid(Category category)
+
+        private bool IsValid(CategoryCreateDTO category)
         {
-            if (_context.Categories.FirstOrDefault(c => c.Name == category.Name) != null & category.Name == null)
+            if (category.Name == null & _context.Categories.FirstOrDefault(c => c.Name == category.Name) != null)
             {
                 return false;
             }

@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FinanceManager.DTO;
 using FinanceManager.Models;
 using FinanceManager.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FinanceManager.Controllers
 {
@@ -8,36 +9,36 @@ namespace FinanceManager.Controllers
     [ApiController]
     public class StorageController : ControllerBase
     {
-        private StorageServices _storageServices = new StorageServices();
+        private StorageServices _storageServices;
+
+        private StorageController()
+        { }
+
+        public StorageController(StorageServices storageServices) => _storageServices = storageServices;
 
         [HttpGet]
-        public async Task<List<Storage>> GetStoragesAsync()
+        public async Task<List<Storage>> GetAllAsync()
         {
-            return await _storageServices.GetAllStoragesAsync();
+            return await _storageServices.GetAllAsync();
         }
 
         [HttpGet("{Id}")]
-        public async Task<ActionResult<Storage>> GetByIdAsync(int? id)
+        public async Task<ActionResult<Storage>> GetByIdAsync([FromRoute] int id)
         {
-            if (id is null)
-            {
-                return BadRequest();
-            }
+            var storage = await _storageServices.GetAsync(id);
 
-            var result = await _storageServices.GetStorageAsync(id);
-
-            return result == null ? NotFound() : Ok(result);
+            return storage == null ? NotFound() : Ok(storage);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Storage>> PostAsync(Storage storage)
+        public async Task<ActionResult<Storage>> PostAsync([FromBody] StorageCreateDTO storageData)
         {
-            if (storage == null)
+            if (storageData is null)
             {
                 return BadRequest();
             }
 
-            if (!await _storageServices.CreateStorageAsync(storage))
+            if (!await _storageServices.CreateAsync(storageData))
             {
                 return BadRequest();
             }
@@ -46,40 +47,41 @@ namespace FinanceManager.Controllers
         }
 
         [HttpPut]
-        public async Task<ActionResult<Storage>> PutAsync(int? id, Storage storage)
+        public async Task<ActionResult<Storage>> PutAsync([FromRoute] int id, [FromBody] StorageUpdateDTO storageData)
         {
-            if (id != storage.Id)
+            if (id != storageData.Id)
             {
                 return BadRequest();
             }
 
-            if (storage == null)
-            {
-                return BadRequest();
-            }
-
-            if (!await _storageServices.EditStorageAsync(id, storage))
+            if (storageData == null)
             {
                 return NotFound();
+            }
+
+            if (!await _storageServices.EditAsync(id, storageData))
+            {
+                return BadRequest();
             }
 
             return Ok();
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Storage>> DeleteAsync(int? id)
+        public async Task<ActionResult<Storage>> DeleteAsync([FromRoute] int id)
         {
-            if(id is null)
+            try
             {
-                return NotFound();
+                if (!await _storageServices.DeleteAsync(id))
+                {
+                    return BadRequest();
+                }
+                return Ok();
             }
-
-            if(!await _storageServices.DeleteStorageAsync(id))
+            catch
             {
-                return BadRequest();
+                return BadRequest("Category contains transactions");
             }
-
-            return Ok();
         }
     }
 }

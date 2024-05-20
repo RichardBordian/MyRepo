@@ -1,4 +1,5 @@
-﻿using FinanceManager.Models;
+﻿using FinanceManager.DTO;
+using FinanceManager.Models;
 using FinanceManager.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,36 +9,36 @@ namespace FinanceManager.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
-        private CategoryServices _categoryServices = new CategoryServices();
+        private CategoryServices _categoryServices;
+
+        private CategoryController()
+        {}
+
+        public CategoryController(CategoryServices categoryServices) => _categoryServices = categoryServices;
 
         [HttpGet]
         public async Task<List<Category>> GetAllAsync()
         {
-            return await _categoryServices.GetAllCategoriesAsync();
+            return await _categoryServices.GetAllAsync();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Category>> GetByIdAsync(int? id)
+        public async Task<ActionResult<Category>> GetByIdAsync([FromRoute]int id)
         {
-            if (id is null)
-            {
-                return BadRequest();
-            }
-
-            var category = await _categoryServices.GetCategoryAsync(id);
+            var category = await _categoryServices.GetAsync(id);
 
             return category == null ? NotFound() : Ok(category);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Category>> PostAsync(Category category)
+        public async Task<ActionResult<Category>> PostAsync([FromBody]CategoryCreateDTO categoryData)
         {
-            if (category is null)
+            if (categoryData is null)
             {
                 return BadRequest();
             }
 
-            if (!await _categoryServices.CreateCategoryAsync(category))
+            if (!await _categoryServices.CreateAsync(categoryData))
             {
                 return BadRequest();
             }
@@ -46,40 +47,41 @@ namespace FinanceManager.Controllers
         }
 
         [HttpPut]
-        public async Task<ActionResult<Category>> PutAsync(int? id, Category category)
+        public async Task<ActionResult<Category>> PutAsync([FromRoute]int id, [FromBody]CategoryUpdateDTO categoryData)
         {
-            if (id != category.Id)
+            if (id != categoryData.Id)
             {
                 return BadRequest();
             }
 
-            if (category is null)
+            if (categoryData is null)
             {
                 return NotFound();
             }
 
-            if (!await _categoryServices.EditCategoryAsync(id, category))
+            if (!await _categoryServices.EditAsync(id, categoryData))
             {
-                return NotFound();
+                return BadRequest();
             }
 
             return Ok();
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Category>> DeleteAsync(int? id)
+        public async Task<ActionResult<Category>> DeleteAsync([FromRoute] int id)
         {
-            if (id is null)
+            try
             {
-                return NotFound();
+                if (!await _categoryServices.DeleteAsync(id))
+                {
+                    return BadRequest();
+                }
+                return Ok();
             }
-
-            if (!await _categoryServices.DeleteCategoryAsync(id))
+            catch
             {
-                return BadRequest();
+                return BadRequest("Category contains transactions");
             }
-
-            return Ok();
         }
     }
 }
