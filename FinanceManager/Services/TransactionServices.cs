@@ -13,16 +13,21 @@ namespace FinanceManager.Services
 
         public TransactionServices(Context context) => _context = context;
 
-        public async Task<List<Transaction>> GetAllAsync()
+        public async Task<List<TransactionDTO>> GetAllAsync()
         {
             return await _context.Transactions
+                .Select(x=> new TransactionDTO() { Name = x.Name, Date = x.Date, CategoryId = x.CategoryId, StorageId = x.StorageId, Price= x.Price, Description = x.Descrpition  })
                 .ToListAsync();
         }
 
-        public async Task<Transaction?> GetAsync(int id)
+        public async Task<TransactionDTO?> GetAsync(int id)
         {
-            return await _context.Transactions
-                .FirstOrDefaultAsync(x=> x.Id == id);
+            var transaction = await _context.Transactions
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            return transaction == null
+                    ? null
+                    : new TransactionDTO() { Name = transaction.Name, Date = transaction.Date, CategoryId = transaction.CategoryId, StorageId = transaction.StorageId, Price = transaction.Price, Description = transaction.Descrpition };
         }
 
         public async Task<bool> CreateAsync(TransactionCreateDTO transactionData)

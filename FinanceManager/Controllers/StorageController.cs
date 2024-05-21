@@ -1,5 +1,4 @@
 ﻿using FinanceManager.DTO;
-using FinanceManager.Models;
 using FinanceManager.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,13 +16,13 @@ namespace FinanceManager.Controllers
         public StorageController(StorageServices storageServices) => _storageServices = storageServices;
 
         [HttpGet]
-        public async Task<List<Storage>> GetAllAsync()
+        public async Task<List<StoragesDTO>> GetAllAsync()
         {
             return await _storageServices.GetAllAsync();
         }
 
         [HttpGet("{Id}")]
-        public async Task<ActionResult<Storage>> GetByIdAsync([FromRoute] int id)
+        public async Task<ActionResult<StorageViewDTO>> GetByIdAsync([FromRoute] int id)
         {
             var storage = await _storageServices.GetAsync(id);
 
@@ -31,7 +30,7 @@ namespace FinanceManager.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Storage>> PostAsync([FromBody] StorageCreateDTO storageData)
+        public async Task<ActionResult<StorageCreateDTO>> PostAsync([FromBody] StorageCreateDTO storageData)
         {
             if (storageData is null)
             {
@@ -43,11 +42,11 @@ namespace FinanceManager.Controllers
                 return BadRequest();
             }
 
-            return Ok();
+            return Ok(storageData);
         }
 
         [HttpPut]
-        public async Task<ActionResult<Storage>> PutAsync([FromRoute] int id, [FromBody] StorageUpdateDTO storageData)
+        public async Task<ActionResult<bool>> PutAsync([FromRoute] int id, [FromBody] StorageUpdateDTO storageData)
         {
             if (id != storageData.Id)
             {
@@ -68,7 +67,7 @@ namespace FinanceManager.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Storage>> DeleteAsync([FromRoute] int id)
+        public async Task<ActionResult<bool>> DeleteAsync([FromRoute] int id)
         {
             try
             {
@@ -84,4 +83,4 @@ namespace FinanceManager.Controllers
             }
         }
     }
-}
+}   

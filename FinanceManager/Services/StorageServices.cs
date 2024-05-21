@@ -15,17 +15,22 @@ namespace FinanceManager.Services
 
         public StorageServices(Context context) => _context = context;
 
-        public async Task<List<Storage>> GetAllAsync()
+        public async Task<List<StoragesDTO>> GetAllAsync()
         {
             return await _context.Storages
+                .Select(x=> new StoragesDTO() { Id = x.Id, Name = x.Name, Value = x.Value})
                 .ToListAsync();
         }
 
-        public async Task<Storage?> GetAsync(int id)
+        public async Task<StorageViewDTO?> GetAsync(int id)
         {
-            return await _context.Storages
+            var storage = await _context.Storages
                 .Include(t=> t.Transactions)
                 .FirstOrDefaultAsync(x => x.Id == id);
+        
+            return storage == null
+                ? null 
+                : new StorageViewDTO() { Name = storage.Name, Value = storage.Value, Transactions = storage.Transactions};
         }
 
         public async Task<bool> CreateAsync(StorageCreateDTO storageData)

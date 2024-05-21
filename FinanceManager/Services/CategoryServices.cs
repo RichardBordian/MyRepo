@@ -13,17 +13,22 @@ namespace FinanceManager.Services
 
         public CategoryServices(Context context) => _context = context;
 
-        public async Task<List<Category>> GetAllAsync()
+        public async Task<List<CategoriesDTO>> GetAllAsync()
         {
             return await _context.Categories
+                .Select(x=> new CategoriesDTO() { Id = x.Id, Name = x.Name, IsIncome = x.IsIncome })
                 .ToListAsync();
         }
 
-        public async Task<Category?> GetAsync(int id)
+        public async Task<CategoryViewDTO?> GetAsync(int id)
         {
-            return await _context.Categories
-                .Include(t => t.Transactions)
-                .FirstOrDefaultAsync(c => c.Id == id);
+            var category = await _context.Categories
+            .Include(t => t.Transactions)
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+            return category == null
+                ? null
+                : new CategoryViewDTO() { Id = category.Id, Name = category.Name, Description = category.Description, transactions = category.Transactions };
         }
 
         public async Task<bool> CreateAsync(CategoryCreateDTO categoryData)

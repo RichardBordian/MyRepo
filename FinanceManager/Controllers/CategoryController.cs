@@ -1,5 +1,4 @@
 ﻿using FinanceManager.DTO;
-using FinanceManager.Models;
 using FinanceManager.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,18 +11,18 @@ namespace FinanceManager.Controllers
         private CategoryServices _categoryServices;
 
         private CategoryController()
-        {}
+        { }
 
         public CategoryController(CategoryServices categoryServices) => _categoryServices = categoryServices;
 
         [HttpGet]
-        public async Task<List<Category>> GetAllAsync()
+        public async Task<List<CategoriesDTO>> GetAllAsync()
         {
             return await _categoryServices.GetAllAsync();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Category>> GetByIdAsync([FromRoute]int id)
+        public async Task<ActionResult<CategoryViewDTO>> GetByIdAsync([FromRoute] int id)
         {
             var category = await _categoryServices.GetAsync(id);
 
@@ -31,7 +30,7 @@ namespace FinanceManager.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Category>> PostAsync([FromBody]CategoryCreateDTO categoryData)
+        public async Task<ActionResult<CategoryCreateDTO>> PostAsync([FromBody] CategoryCreateDTO categoryData)
         {
             if (categoryData is null)
             {
@@ -43,11 +42,11 @@ namespace FinanceManager.Controllers
                 return BadRequest();
             }
 
-            return Ok();
+            return Ok(categoryData);
         }
 
         [HttpPut]
-        public async Task<ActionResult<Category>> PutAsync([FromRoute]int id, [FromBody]CategoryUpdateDTO categoryData)
+        public async Task<ActionResult<bool>> PutAsync([FromRoute] int id, [FromBody] CategoryUpdateDTO categoryData)
         {
             if (id != categoryData.Id)
             {
@@ -68,7 +67,7 @@ namespace FinanceManager.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Category>> DeleteAsync([FromRoute] int id)
+        public async Task<ActionResult<bool>> DeleteAsync([FromRoute] int id)
         {
             try
             {
