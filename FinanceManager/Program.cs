@@ -1,4 +1,6 @@
 using FinanceManager.Services;
+using FinanceManager.Controllers;
+using Microsoft.EntityFrameworkCore;
 
 namespace FinanceManager
 {
@@ -8,18 +10,19 @@ namespace FinanceManager
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            string connection = builder.Configuration.GetConnectionString("DefaultConnection");
+
+            builder.Services.AddDbContext<Context>(options => options.UseSqlServer(connection));
+
+            builder.Services.AddScoped<StorageServices>();
+            builder.Services.AddScoped<CategoryServices>();
+            builder.Services.AddScoped<ReportServices>();
+            builder.Services.AddScoped<TransactionServices>();
 
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-
-            Context context = new Context();
-            ReportServices reportServices = new ReportServices(context);
-            StorageServices storageServices = new StorageServices(context);
-            TransactionServices transactionServices = new TransactionServices(context);
-            CategoryServices categoryServices = new CategoryServices(context);
 
             var app = builder.Build();
 
