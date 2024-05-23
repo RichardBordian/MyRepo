@@ -43,7 +43,7 @@ namespace FinanceManager.Services
                 Date = transactionData.Date, 
                 CategoryId = transactionData.CategoryId,
                 Price = transactionData.Price,
-                Descrpition = transactionData.Descrpition,
+                Descrpition = transactionData.Description,
                 StorageId = transactionData.StorageId,
             };
 
@@ -109,7 +109,6 @@ namespace FinanceManager.Services
         public async Task<bool> DeleteAsync(int id)
         {
             var transaction = await _context.Transactions
-                .Include(c=> c.Category)
                 .FirstOrDefaultAsync(t=> t.Id == id);
 
             if(transaction is null)
