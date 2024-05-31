@@ -1,0 +1,46 @@
+﻿@page "/details/{id}"
+
+
+<PageTitle>Details</PageTitle>
+<MudText Typo="Typo.h3" Class="ml-3">Name: @storageInfo?.Name</MudText>
+<MudText Typo="Typo.h4" Class="ml-3">Value: @storageInfo?.Value</MudText>
+<MudText Typo="Typo.h5" Class="ml-3">Transactions list</MudText>
+
+<MudTable
+    T="TransactionByStorageDTO"
+    items ="@storageInfo?.Transactions?.Take(10)"
+    Hover="true"
+    Breakpoint="Breakpoint.Sm"
+    RowClass="cursor-pointer"
+    LoadingProgressColor="Color.Info">
+    <HeaderContent>
+        <MudTh>Name</MudTh>
+        <MudTh>Price</MudTh>
+        <MudTh>Date</MudTh>
+        <MudTh>CategoryId</MudTh>
+        <MudTh>Description</MudTh>
+    </HeaderContent>
+
+    <RowTemplate>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Price">@context.Price</MudTd>
+        <MudTd DataLabel="Date">@context.Date</MudTd>
+        <MudTd DataLabel="CategoryId">@context.CategoryId</MudTd>
+        <MudTd DataLabel="Description">@context.Description</MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code
+{
+    [Parameter]
+    public string id { get; set; } = "";
+    StorageViewDTO? storageInfo;
+    static HttpClient httpClient = new HttpClient();
+    List<TransactionByStorageDTO>? transactions = new List<TransactionByStorageDTO>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        storageInfo = await httpClient.GetFromJsonAsync<StorageViewDTO>($"http://localhost:5220/api/Storage/{id}");
+        transactions = await httpClient.GetFromJsonAsync<TransactionByStorageDTO>($"http://localhost:5220/api/Transaction/storageid/{id}");
+    }
+}

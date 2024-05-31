@@ -7,7 +7,7 @@
         public DateTime Date { get; set; }
         public required int CategoryId { get; set; }
         public double Price { get; set; }
-        public string? Descrpition { get; set; }
+        public string? Description { get; set; }
         public required int StorageId { get; set; }
     }
 }

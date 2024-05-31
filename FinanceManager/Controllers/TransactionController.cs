@@ -29,6 +29,22 @@ namespace FinanceManager.Controllers
             return transaction == null ? NotFound() : Ok(transaction);
         }
 
+        [HttpGet("categoryid/{id}")]
+        public async Task<ActionResult<List<TransactionByCategoryDTO>>> GetByCategory([FromRoute] int id)
+        {
+            var transactions = await _transactionServices.GetByCategory(id);
+
+            return transactions == null ? NotFound() : Ok(transactions);
+        }
+
+        [HttpGet("storageid/{id}")]
+        public async Task<ActionResult<List<TransactionByStorageDTO>>> GetByStorage([FromRoute] int id)
+        {
+            var transactions = await _transactionServices.GetByStorage(id);
+
+            return transactions == null ? NotFound() : Ok(transactions);
+        }
+
         [HttpPost]
         public async Task<ActionResult<TransactionCreateDTO>> PostAsync([FromBody]TransactionCreateDTO transactionData)
         {

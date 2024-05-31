@@ -16,8 +16,25 @@ namespace FinanceManager.Services
         public async Task<List<TransactionDTO>> GetAllAsync()
         {
             return await _context.Transactions
-                .Select(x=> new TransactionDTO() { Name = x.Name, Date = x.Date, CategoryId = x.CategoryId, StorageId = x.StorageId, Price= x.Price, Description = x.Descrpition  })
+                .Select(x=> new TransactionDTO() { Name = x.Name, Date = x.Date, CategoryId = x.CategoryId, StorageId = x.StorageId, Price= x.Price, Description = x.Description  })
                 .ToListAsync();
+        }
+
+        public async Task<List<TransactionByCategoryDTO>> GetByCategory(int id)
+        {
+            return await _context.Transactions
+                .Where(x=> x.CategoryId == id)
+                .Select(x => new TransactionByCategoryDTO() { Name = x.Name, Date = x.Date, StorageId = x.StorageId, Price = x.Price, Description = x.Description })
+                .ToListAsync();
+        }
+
+        public async Task<List<TransactionByStorageDTO>> GetByStorage(int id)
+        {
+            return await _context.Transactions
+                .Where(x=> x.StorageId == id)
+                .Select(x => new TransactionByStorageDTO() { Name = x.Name, Date = x.Date, CategoryId = x.CategoryId, Price = x.Price, Description = x.Description })
+                .ToListAsync();
+
         }
 
         public async Task<TransactionDTO?> GetAsync(int id)
@@ -27,7 +44,7 @@ namespace FinanceManager.Services
 
             return transaction == null
                     ? null
-                    : new TransactionDTO() { Name = transaction.Name, Date = transaction.Date, CategoryId = transaction.CategoryId, StorageId = transaction.StorageId, Price = transaction.Price, Description = transaction.Descrpition };
+                    : new TransactionDTO() { Name = transaction.Name, Date = transaction.Date, CategoryId = transaction.CategoryId, StorageId = transaction.StorageId, Price = transaction.Price, Description = transaction.Description };
         }
 
         public async Task<bool> CreateAsync(TransactionCreateDTO transactionData)
@@ -43,7 +60,7 @@ namespace FinanceManager.Services
                 Date = transactionData.Date, 
                 CategoryId = transactionData.CategoryId,
                 Price = transactionData.Price,
-                Descrpition = transactionData.Description,
+                Description = transactionData.Description,
                 StorageId = transactionData.StorageId,
             };
 
@@ -83,9 +100,9 @@ namespace FinanceManager.Services
             {
                 transaction.Price = transactionData.Price;
             }
-            if (transactionData.Descrpition != null & transactionData.Descrpition != transaction.Descrpition)
+            if (transactionData.Descrpition != null & transactionData.Descrpition != transaction.Description)
             {
-                transaction.Descrpition = transactionData.Descrpition;
+                transaction.Description = transactionData.Descrpition;
             }
             if (transactionData.StorageId != transaction.StorageId)
             {

@@ -1,0 +1,45 @@
+﻿@page "/"
+
+<PageTitle>Storages</PageTitle>
+<MudText Typo="Typo.h3" Class="ml-3">Hi user!</MudText>
+<MudText Typo="Typo.subtitle1" Class="ml-3">It's your storage list</MudText>
+
+<MudTable 
+    T="StoragesDTO"
+    Items="@storages?.Take(10)" 
+    Hover="true" 
+    Breakpoint="Breakpoint.Sm"
+    RowClass="cursor-pointer"
+    LoadingProgressColor="Color.Info"
+    OnRowClick="RowClickEvent">
+    
+    <HeaderContent>
+        <MudTh>Name</MudTh>
+        <MudTh>Value</MudTh>
+    </HeaderContent>
+
+    <RowTemplate> 
+        <MudLink Href="@href">
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+        </MudLink>
+        <MudTd DataLabel="Value">@context.Value</MudTd>
+    </RowTemplate>
+
+</MudTable>
+
+@code
+{
+    private string href;
+    private List<StoragesDTO>? storages = new List<StoragesDTO>();
+    static HttpClient httpClient = new HttpClient();
+
+    protected override async Task OnInitializedAsync()
+    {
+        storages = await httpClient.GetFromJsonAsync<List<StoragesDTO>>("http://localhost:5220/api/Storage");
+    }
+
+    private void RowClickEvent(TableRowClickEventArgs<StoragesDTO> tableRowClickEventArgs)
+    {
+        href = "/details/" + tableRowClickEventArgs.Item.Id;
+    }
+}
