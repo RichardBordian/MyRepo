@@ -1,5 +1,27 @@
-﻿<h3>Create</h3>
+﻿@page "/categories/create"
+
+<PageTitle>Create</PageTitle>
+<MudText>Create categories page</MudText>
+<MudForm @bind-IsValid="@success">
+    <MudTextField T="string" Label="Name" Required="true" RequiredError="Name is required!" @bind-value="Name" />
+    <MudTextField T="string" Label="Description" @bind-Value="description" />
+    <MudSwitch @bind-Value="@IsIncome" Color="Color.Success" UnCheckedColor="Color.Error" Label="IsIncome" />
+    <div class="d-flex align-center justify-space-between">
+        <MudCheckBox T="bool" Required="true" RequiredError="You must agree!" Label="Agree" />
+        <MudButton Href="/" OnClick="CreateStorage" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)" Class="m1-auto">Create</MudButton>
+    </div>
+</MudForm>
 
 @code {
+    private string Name = "";
+    private string description = "";
+    private bool IsIncome;
+    static HttpClient httpClient = new HttpClient();
+    bool success;
 
+    private async void CreateStorage()
+    {
+        var createData = new CategoryCreateDTO() { Name = Name, Description = description, IsIncome = IsIncome};
+        await httpClient.PostAsJsonAsync("http://localhost:5220/api/category/", createData);
+    }
 }

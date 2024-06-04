@@ -1,7 +1,7 @@
-﻿@page "/categories/edit/{id}"
+﻿@page "/Transactions/edit/{id}"
 
 <PageTitle>Edit</PageTitle>
-<MudText> edit @categoryInfo.Name</MudText>
+<MudText> Edit @transactionsInfo?.Name</MudText>
 <MudForm @bind-IsValid="@success">
     <MudTextField T="string" Label="Name" @bind-Value="Name"/>
     <MudTextField T="string" Label="Description" @bind-Value="Description"/>
@@ -21,21 +21,20 @@
     private string? Name;
     private string? Description;
     bool IsIncome;
-    private CategoryViewDTO? categoryInfo;
+    private TransactionDTO? transactionsInfo;
     static HttpClient httpClient = new HttpClient();
     bool success;
 
     protected override async Task OnInitializedAsync()
     {
-        categoryInfo = await httpClient.GetFromJsonAsync<CategoryViewDTO>($"http://localhost:5220/api/category/{Id}");
-        Name = categoryInfo?.Name;
-        Description = categoryInfo?.Description;
-        IsIncome = categoryInfo.IsIncome;
+        transactionsInfo = await httpClient.GetFromJsonAsync<TransactionDTO>($"http://localhost:5220/api/category/{Id}");
+        Name = transactionsInfo?.Name;
+        Description = transactionsInfo?.Description;
     }
 
     private async void EditClick()
     {
-        CategoryUpdateDTO categoryUpdateDTO = new CategoryUpdateDTO() { Name = Name, Description = Description, IsIncome = IsIncome, Id = Id };
+        CategoryUpdateDTO categoryUpdateDTO = new CategoryUpdateDTO() { Name = Name, Description = Description, IsIncome = IsIncome, Id = int.Parse(Id) };
         await httpClient.PutAsJsonAsync($"http://localhost:5220/api/category/{Id}", categoryUpdateDTO);
     }
 }

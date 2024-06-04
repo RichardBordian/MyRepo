@@ -1,5 +1,24 @@
-﻿<h3>Delete</h3>
+﻿@page "/transactions/delete/{id}"
+
+<PageTitle>Delete</PageTitle>
+<MudText Typo="Typo.h4">Are you realy want to delete @Name?</MudText>
+<MudButton Href="/transactions" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" OnClick="DeleteClick">Delete</MudButton>
 
 @code {
+    [Parameter]
+    public string Id { get; set; } = "";
+    private string? Name;
+    private TransactionDTO? transactionInfo;
+    static HttpClient httpClient = new HttpClient();
 
+    protected override async Task OnInitializedAsync()
+    {
+        transactionInfo = await httpClient.GetFromJsonAsync<TransactionDTO>($"http://localhost:5220/api/category/{Id}");
+        Name = transactionInfo?.Name;
+    }
+
+    private async void DeleteClick()
+    {
+        await httpClient.DeleteAsync($"http://localhost:5220/api/category/{Id}");
+    }
 }

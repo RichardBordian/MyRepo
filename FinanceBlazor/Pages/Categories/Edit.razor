@@ -1,5 +1,37 @@
-﻿<h3>Edit</h3>
+﻿@page "/categories/edit/{id}"
+
+<PageTitle>Edit</PageTitle>
+<MudText>Edit @categoryInfo?.Name</MudText>
+<MudForm @bind-IsValid="@success">
+    <MudTextField T="string" Label="Name" @bind-Value="Name" />
+    <MudTextField T="string" Label="Description" @bind-Value="Description" />
+    <div class="d-flex align-center justify-space-between">
+        <MudSwitch @bind-Value="@IsIncome" Color="Color.Success" UnCheckedColor="Color.Error" Label="IsIncome"/>
+        <MudButton Href="/categories/" OnClick="EditClick" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)" Class="m1-auto">Edit</MudButton>
+    </div>
+</MudForm>
 
 @code {
+    [Parameter]
+    public string Id { get; set; } = "";
+    private string? Name;
+    private string? Description;
+    private bool IsIncome;
+    private CategoryViewDTO? categoryInfo;
+    static HttpClient httpClient = new HttpClient();
+    bool success;
 
+    protected override async Task OnInitializedAsync()
+    {
+        categoryInfo = await httpClient.GetFromJsonAsync<CategoryViewDTO>($"http://localhost:5220/api/Category/{Id}");
+        Name = categoryInfo?.Name;
+        Description = categoryInfo?.Description;
+        IsIncome = categoryInfo.IsIncome;
+    }
+
+    private async void EditClick()
+    {
+        CategoryUpdateDTO categoryUpdateDTO = new CategoryUpdateDTO() { Name = Name, Description = Description, IsIncome = IsIncome, Id = int.Parse(Id) };
+        await httpClient.PutAsJsonAsync($"http://localhost:5220/api/Category/{Id}", categoryUpdateDTO);
+    }
 }

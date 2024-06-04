@@ -1,5 +1,54 @@
-﻿<h3>Details</h3>
+﻿@page "/categories/details/{id}"
 
-@code {
+<PageTitle>Details</PageTitle>
+<MudText Typo="Typo.h3" Class="ml-3">Name: @categoryInfo?.Name</MudText>
+<MudText Typo="Typo.h4" Class="ml-3">Descriptions: @categoryInfo?.Description</MudText>
+<MudText Typo="Typo.h5" Class="ml-3">Transactions list</MudText>
 
+<MudTable T="TransactionByCategoryDTO"
+          items="@transactions"
+          Hover="true"
+          Breakpoint="Breakpoint.Sm"
+          RowClass="cursor-pointer"
+          LoadingProgressColor="Color.Info"
+          OnRowClick="RowClickEvent">
+
+    <HeaderContent>
+        <MudTh>Name</MudTh>
+        <MudTh>Price</MudTh>
+        <MudTh>Date</MudTh>
+        <MudTh>StorageId</MudTh>
+        <MudTh>Description</MudTh>
+    </HeaderContent>
+
+    <RowTemplate>
+        <MudLink Href="@href" Underline="Underline.Always">
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+        </MudLink>
+        <MudTd DataLabel="Price">@context.Price</MudTd>
+        <MudTd DataLabel="Date">@context.Date.ToShortDateString()</MudTd>
+        <MudTd DataLabel="CategoryId">@context.StorageId</MudTd>
+        <MudTd DataLabel="Description">@context.Description</MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code
+{
+    [Parameter]
+    public string Id { get; set; } = "";
+    CategoryViewDTO? categoryInfo;
+    static HttpClient httpClient = new HttpClient();
+    List<TransactionByCategoryDTO>? transactions = new List<TransactionByCategoryDTO>();
+    string? href;
+
+    protected override async Task OnInitializedAsync()
+    {
+        categoryInfo = await httpClient.GetFromJsonAsync<CategoryViewDTO>($"http://localhost:5220/api/category/{Id}");
+        transactions = await httpClient.GetFromJsonAsync<List<TransactionByCategoryDTO>>($"http://localhost:5220/api/Transaction/categoryid/{Id}");
+    }
+
+    private void RowClickEvent(TableRowClickEventArgs<TransactionByCategoryDTO> tableRowClickEventArgs)
+    {
+        href = "/transaction/details/" + tableRowClickEventArgs.Item.Id;
+    }
 }

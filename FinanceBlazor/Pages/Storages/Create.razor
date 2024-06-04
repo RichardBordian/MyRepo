@@ -1,10 +1,10 @@
 ﻿@page "/create"
 
-<PageTitle>Edit</PageTitle>
+<PageTitle>Create</PageTitle>
 <MudText>Create storage page</MudText>
 <MudForm @bind-IsValid="@success">
-    <MudTextField T="string" Label="Storage name" Required="true" RequiredError="storage name is required!" @bind-value="storageName"/>
-    <MudTextField T="double" Label="Value" @bind-Value="storageValue"/>
+    <MudTextField T="string" Label="Name" Required="true" RequiredError="Name is required!" @bind-value="Name"/>
+    <MudTextField T="double" Label="Value" @bind-Value="Value"/>
     <div class="d-flex align-center justify-space-between">
         <MudCheckBox T="bool" Required="true" RequiredError="You must agree!" Label="Agree" />
         <MudButton Href="/" OnClick="CreateStorage" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)" Class="m1-auto">Create</MudButton>
@@ -12,14 +12,14 @@
 </MudForm>
 
 @code{
-    private string? storageName;
-    private double storageValue;
+    private string Name = "";
+    private double Value;
     static HttpClient httpClient = new HttpClient();
     bool success;
 
     private async void CreateStorage()
     {
-        var createData = new StorageCreateDTO() { Name = storageName, Value = storageValue };
+        var createData = new StorageCreateDTO() { Name = Name, Value = Value };
         await httpClient.PostAsJsonAsync("http://localhost:5220/api/Storage/", createData);
     }
 }

@@ -1,5 +1,69 @@
-﻿<h3>Index</h3>
+﻿@page "/transactions/"
+
+<PageTitle>Transactions</PageTitle>
+
+<MudGrid Justify="Justify.SpaceAround">
+    <MudItem>
+        <MudText Typo="Typo.h2">Transaction list:</MudText>
+    </MudItem>
+    <MudItem>
+        <MudText Typo="Typo.h2">
+            <MudLink Href="transactions/create" Underline="Underline.Always">
+                Create
+            </MudLink>
+        </MudText>
+    </MudItem>
+</MudGrid>
+
+<MudTable T="TransactionDTO"
+          Items="@transactions"
+          Hover="true"
+          Breakpoint="Breakpoint.Sm"
+          RowClass="cursor-pointer"
+          LoadingProgressColor="Color.Info"
+          OnRowClick="RowClickEvent">
+
+    <HeaderContent>
+        <MudTh>Name</MudTh>
+        <MudTh>Price</MudTh>
+        <MudTh>Date</MudTh>
+        <MudTh>Description</MudTh>
+        <MudTh>StorageId</MudTh>
+        <MudTh>CategoryId</MudTh>
+    </HeaderContent>
+
+    <RowTemplate>
+        <MudLink Href="@detailsRef" Underline="Underline.Always">
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Price">@context.Price</MudTd>
+            <MudTd DataLabel="Date">@context.Date.ToShortDateString()</MudTd>
+            <MudTd DataLabel="Description">@context.Description</MudTd>
+            <MudTd DataLabel="StorageId">@context.StorageId</MudTd>
+            <MudTd DataLabel="CategoryId">@context.CategoryId</MudTd>
+        </MudLink>
+
+        <MudLink Href="@editRef">Edit</MudLink> |
+        <MudLink Href="@deleteRef">Delete</MudLink>
+    </RowTemplate>
+</MudTable>
 
 @code {
+    private string? editRef;
+    private string? deleteRef;
+    private string? detailsRef;
+    private List<TransactionDTO>? transactions = new List<TransactionDTO>();
+    static HttpClient httpClient = new HttpClient();
 
+    protected override async Task OnInitializedAsync()
+    {
+        transactions = await httpClient.GetFromJsonAsync<List<TransactionDTO>>("http://localhost:5220/api/transaction");
+    }
+
+    private void RowClickEvent(TableRowClickEventArgs<TransactionDTO> tableRowClickEventArgs)
+    {
+        detailsRef = "categories/details/" + tableRowClickEventArgs.Item.Id;
+        editRef = "categories/edit/" + tableRowClickEventArgs.Item.Id;
+        deleteRef = "categories/delete/" + tableRowClickEventArgs.Item.Id;
+    }
 }
+

@@ -41,6 +41,7 @@ namespace FinanceManager.Services
             var category = new Category()
             { 
                 Name = categoryData.Name, 
+                Description = categoryData.Description,
                 IsIncome = categoryData.IsIncome 
             };
 
@@ -72,6 +73,11 @@ namespace FinanceManager.Services
             if (categoryData.Description != null & category.Description != categoryData.Description)
             {
                 category.Description = categoryData.Description;
+            }
+
+            if (category.IsIncome != categoryData.IsIncome)
+            {
+                category.IsIncome = categoryData.IsIncome;
             }
 
             try
