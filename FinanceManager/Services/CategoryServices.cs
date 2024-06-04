@@ -28,7 +28,7 @@ namespace FinanceManager.Services
 
             return category == null
                 ? null
-                : new CategoryViewDTO() { Id = category.Id, Name = category.Name, Description = category.Description, transactions = category.Transactions };
+                : new CategoryViewDTO() { Id = category.Id, Name = category.Name, Description = category.Description, IsIncome = category.IsIncome, transactions = category.Transactions };
         }
 
         public async Task<bool> CreateAsync(CategoryCreateDTO categoryData)
@@ -64,10 +64,11 @@ namespace FinanceManager.Services
 
             var category = await _context.Categories.FirstAsync(x => x.Id == id);
 
-            if (!string.IsNullOrEmpty(categoryData.Name) & categoryData.Name != categoryData.Name)
+            if (!string.IsNullOrEmpty(categoryData.Name) & category.Name != categoryData.Name)
             {
                 category.Name = categoryData.Name;
             }
+
             if (categoryData.Description != null & category.Description != categoryData.Description)
             {
                 category.Description = categoryData.Description;
@@ -78,6 +79,7 @@ namespace FinanceManager.Services
                 _context.Update(category);
                 await _context.SaveChangesAsync();
             }
+
             catch (DbUpdateConcurrencyException)
             {
                 throw new Exception("Update exception");

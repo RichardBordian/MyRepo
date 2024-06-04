@@ -45,7 +45,7 @@ namespace FinanceManager.Controllers
             return Ok(categoryData);
         }
 
-        [HttpPut]
+        [HttpPut("{id}")]
         public async Task<ActionResult<bool>> PutAsync([FromRoute] int id, [FromBody] CategoryUpdateDTO categoryData)
         {
             if (id != categoryData.Id)

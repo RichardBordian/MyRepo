@@ -1,0 +1,26 @@
+﻿@page "/delete/{id}"
+
+<PageTitle>Delete</PageTitle>
+<MudText Typo="Typo.h4">Are you realy want to delete @storageName?</MudText>
+<MudText Typo="Typo.h6" Color="Color.Error">Remember, you can't delete storage if that have transactions</MudText>
+<MudButton Href="/" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" OnClick="DeleteClick">Delete</MudButton>
+
+@code{
+    [Parameter]
+    public string Id { get; set; } = "";
+
+    private string storageName = "";
+    private StorageViewDTO? storageInfo;
+    static HttpClient httpClient = new HttpClient();
+
+    protected override async Task OnInitializedAsync()
+    {
+        storageInfo = await httpClient.GetFromJsonAsync<StorageViewDTO>($"http://localhost:5220/api/Storage/{Id}");
+        storageName = storageInfo.Name;
+    }
+
+    private async void DeleteClick()
+    {
+      await httpClient.DeleteAsync($"http://localhost:5220/api/Storage/{Id}");
+    }
+}

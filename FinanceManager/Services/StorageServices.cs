@@ -70,9 +70,19 @@ namespace FinanceManager.Services
             {
                 storage.Name = storageData.Name;
             }
+
             if(storage.Value != storageData.Value)
             {
-                storage.Value = storageData.Value;
+                TransactionServices transactionServices = new TransactionServices(_context);
+                await transactionServices.CreateAsync(new TransactionCreateDTO()
+                {
+                    Name = "correcting",
+                    Date = DateTime.Now,
+                    Price = storage.Value > storageData.Value ? storage.Value - storageData.Value : storageData.Value - storage.Value,
+                    StorageId = storageData.Id,
+                    CategoryId = 1,
+                    Description = null
+                });
             }
 
             try

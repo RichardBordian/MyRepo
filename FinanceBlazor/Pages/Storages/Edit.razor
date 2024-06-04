@@ -1,0 +1,35 @@
+﻿@page "/edit/{id}"
+
+<PageTitle>Edit</PageTitle>
+<MudText>Edit @storageInfo?.Name</MudText>
+<MudForm @bind-IsValid="@success">
+    <MudTextField T="string" Label="Name" @bind-Value="Name"/>
+    <MudTextField T="double" Label="Value" @bind-Value="Value"/>
+    <div class="d-flex align-center justify-space-between">
+        <MudCheckBox T="bool" Required="true" RequiredError="You must agree!" Label="Agree" />
+        <MudButton Href="/" OnClick="EditClick" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)" Class="m1-auto">Edit</MudButton>
+    </div>
+</MudForm>
+
+@code{
+    [Parameter]
+    public string Id { get; set; }= "";
+    private string? Name;
+    private double Value;
+    private StorageViewDTO? storageInfo;
+    static HttpClient httpClient = new HttpClient();
+    bool success;
+
+    protected override async Task OnInitializedAsync()
+    {
+        storageInfo = await httpClient.GetFromJsonAsync<StorageViewDTO>($"http://localhost:5220/api/Storage/{Id}");
+        Name = storageInfo?.Name;
+        Value = storageInfo.Value;
+    }
+
+    private async void EditClick()
+    {
+        StorageUpdateDTO storageUpdateDTO = new StorageUpdateDTO() { Name = Name, Value = Value, Id = int.Parse(Id) };
+        await httpClient.PutAsJsonAsync($"http://localhost:5220/api/Storage/{Id}", storageUpdateDTO);
+    }
+}

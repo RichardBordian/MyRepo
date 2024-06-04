@@ -4,9 +4,22 @@
 <MudText Typo="Typo.h3" Class="ml-3">Hi user!</MudText>
 <MudText Typo="Typo.subtitle1" Class="ml-3">It's your storage list</MudText>
 
+<MudGrid Justify="Justify.SpaceAround">
+    <MudItem>
+        <MudText Typo="Typo.h2">Storage list:</MudText>
+    </MudItem>
+    <MudItem >
+        <MudText Typo="Typo.h2">
+            <MudLink Href="/create" Underline="Underline.Always">
+                Create
+            </MudLink>
+        </MudText>
+    </MudItem>
+</MudGrid>
+
 <MudTable 
     T="StoragesDTO"
-    Items="@storages?.Take(10)" 
+    Items="@storages" 
     Hover="true" 
     Breakpoint="Breakpoint.Sm"
     RowClass="cursor-pointer"
@@ -19,17 +32,22 @@
     </HeaderContent>
 
     <RowTemplate> 
-        <MudLink Href="@href">
+        <MudLink Href="@detailsRef" Underline="Underline.Always">
             <MudTd DataLabel="Name">@context.Name</MudTd>
         </MudLink>
         <MudTd DataLabel="Value">@context.Value</MudTd>
-    </RowTemplate>
 
+        <MudLink Href="@editRef">Edit</MudLink>
+         <MudText></MudText>
+        <MudLink Href="@deleteRef">Delete</MudLink>
+    </RowTemplate>
 </MudTable>
 
 @code
 {
-    private string href;
+    private string? editRef;
+    private string? deleteRef;
+    private string? detailsRef;
     private List<StoragesDTO>? storages = new List<StoragesDTO>();
     static HttpClient httpClient = new HttpClient();
 
@@ -37,9 +55,11 @@
     {
         storages = await httpClient.GetFromJsonAsync<List<StoragesDTO>>("http://localhost:5220/api/Storage");
     }
-
+    
     private void RowClickEvent(TableRowClickEventArgs<StoragesDTO> tableRowClickEventArgs)
     {
-        href = "/details/" + tableRowClickEventArgs.Item.Id;
+        detailsRef = "/details/" + tableRowClickEventArgs.Item.Id;
+        editRef = "/edit/" + tableRowClickEventArgs.Item.Id;
+        deleteRef = "/delete/" + tableRowClickEventArgs.Item.Id;
     }
 }

@@ -16,7 +16,7 @@ namespace FinanceManager.Services
         public async Task<List<TransactionDTO>> GetAllAsync()
         {
             return await _context.Transactions
-                .Select(x=> new TransactionDTO() { Name = x.Name, Date = x.Date, CategoryId = x.CategoryId, StorageId = x.StorageId, Price= x.Price, Description = x.Description  })
+                .Select(x=> new TransactionDTO() { Id= x.Id, Name = x.Name, Date = x.Date, CategoryId = x.CategoryId, StorageId = x.StorageId, Price= x.Price, Description = x.Description  })
                 .ToListAsync();
         }
 
@@ -24,7 +24,7 @@ namespace FinanceManager.Services
         {
             return await _context.Transactions
                 .Where(x=> x.CategoryId == id)
-                .Select(x => new TransactionByCategoryDTO() { Name = x.Name, Date = x.Date, StorageId = x.StorageId, Price = x.Price, Description = x.Description })
+                .Select(x => new TransactionByCategoryDTO() { Id = x.Id, Name = x.Name, Date = x.Date, StorageId = x.StorageId, Price = x.Price, Description = x.Description })
                 .ToListAsync();
         }
 
@@ -32,7 +32,7 @@ namespace FinanceManager.Services
         {
             return await _context.Transactions
                 .Where(x=> x.StorageId == id)
-                .Select(x => new TransactionByStorageDTO() { Name = x.Name, Date = x.Date, CategoryId = x.CategoryId, Price = x.Price, Description = x.Description })
+                .Select(x => new TransactionByStorageDTO() { Id = x.Id, Name = x.Name, Date = x.Date, CategoryId = x.CategoryId, Price = x.Price, Description = x.Description })
                 .ToListAsync();
 
         }

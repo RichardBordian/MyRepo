@@ -1,6 +1,5 @@
 ﻿@page "/details/{id}"
 
-
 <PageTitle>Details</PageTitle>
 <MudText Typo="Typo.h3" Class="ml-3">Name: @storageInfo?.Name</MudText>
 <MudText Typo="Typo.h4" Class="ml-3">Value: @storageInfo?.Value</MudText>
@@ -8,11 +7,13 @@
 
 <MudTable
     T="TransactionByStorageDTO"
-    items ="@storageInfo?.Transactions?.Take(10)"
+    items ="@transactions"
     Hover="true"
     Breakpoint="Breakpoint.Sm"
     RowClass="cursor-pointer"
-    LoadingProgressColor="Color.Info">
+    LoadingProgressColor="Color.Info"
+    OnRowClick="RowClickEvent">
+
     <HeaderContent>
         <MudTh>Name</MudTh>
         <MudTh>Price</MudTh>
@@ -22,9 +23,11 @@
     </HeaderContent>
 
     <RowTemplate>
-        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudLink Href="@href" Underline="Underline.Always">
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+        </MudLink>
         <MudTd DataLabel="Price">@context.Price</MudTd>
-        <MudTd DataLabel="Date">@context.Date</MudTd>
+        <MudTd DataLabel="Date">@context.Date.ToShortDateString()</MudTd>
         <MudTd DataLabel="CategoryId">@context.CategoryId</MudTd>
         <MudTd DataLabel="Description">@context.Description</MudTd>
     </RowTemplate>
@@ -33,14 +36,20 @@
 @code
 {
     [Parameter]
-    public string id { get; set; } = "";
+    public string Id { get; set; } = "";
     StorageViewDTO? storageInfo;
     static HttpClient httpClient = new HttpClient();
     List<TransactionByStorageDTO>? transactions = new List<TransactionByStorageDTO>();
+    string? href;
 
     protected override async Task OnInitializedAsync()
     {
-        storageInfo = await httpClient.GetFromJsonAsync<StorageViewDTO>($"http://localhost:5220/api/Storage/{id}");
-        transactions = await httpClient.GetFromJsonAsync<TransactionByStorageDTO>($"http://localhost:5220/api/Transaction/storageid/{id}");
+        storageInfo = await httpClient.GetFromJsonAsync<StorageViewDTO>($"http://localhost:5220/api/Storage/{Id}");
+        transactions = await httpClient.GetFromJsonAsync<List<TransactionByStorageDTO>>($"http://localhost:5220/api/Transaction/storageid/{Id}");
+    }
+
+    private void RowClickEvent(TableRowClickEventArgs<TransactionByStorageDTO> tableRowClickEventArgs)
+    {
+        href = "/transaction/details/" + tableRowClickEventArgs.Item.Id;
     }
 }
