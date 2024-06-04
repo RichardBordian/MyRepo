@@ -3,8 +3,8 @@
 <PageTitle>Create</PageTitle>
 <MudText>Create storage page</MudText>
 <MudForm @bind-IsValid="@success">
-    <MudTextField T="string" Label="Name" Required="true" RequiredError="Name is required!" @bind-value="Name"/>
-    <MudTextField T="double" Label="Value" @bind-Value="Value"/>
+    <MudTextField T="string" Label="Name" Required="true" RequiredError="Name is required!" @bind-value="name"/>
+    <MudTextField T="double" Label="Value" @bind-Value="value"/>
     <div class="d-flex align-center justify-space-between">
         <MudCheckBox T="bool" Required="true" RequiredError="You must agree!" Label="Agree" />
         <MudButton Href="/" OnClick="CreateStorage" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)" Class="m1-auto">Create</MudButton>
@@ -12,14 +12,14 @@
 </MudForm>
 
 @code{
-    private string Name = "";
-    private double Value;
+    private string name = "";
+    private double value;
     static HttpClient httpClient = new HttpClient();
     bool success;
 
     private async void CreateStorage()
     {
-        var createData = new StorageCreateDTO() { Name = Name, Value = Value };
+        var createData = new StorageCreateDTO() { Name = name, Value = value };
         await httpClient.PostAsJsonAsync("http://localhost:5220/api/Storage/", createData);
     }
 }

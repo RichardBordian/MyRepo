@@ -35,7 +35,7 @@
 @code
 {
     [Parameter]
-    public string Id { get; set; } = "";
+    public string id { get; set; } = "";
     CategoryViewDTO? categoryInfo;
     static HttpClient httpClient = new HttpClient();
     List<TransactionByCategoryDTO>? transactions = new List<TransactionByCategoryDTO>();
@@ -43,8 +43,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        categoryInfo = await httpClient.GetFromJsonAsync<CategoryViewDTO>($"http://localhost:5220/api/category/{Id}");
-        transactions = await httpClient.GetFromJsonAsync<List<TransactionByCategoryDTO>>($"http://localhost:5220/api/Transaction/categoryid/{Id}");
+        categoryInfo = await httpClient.GetFromJsonAsync<CategoryViewDTO>($"http://localhost:5220/api/category/{id}");
+        transactions = await httpClient.GetFromJsonAsync<List<TransactionByCategoryDTO>>($"http://localhost:5220/api/Transaction/categoryid/{id}");
     }
 
     private void RowClickEvent(TableRowClickEventArgs<TransactionByCategoryDTO> tableRowClickEventArgs)

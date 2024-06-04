@@ -3,7 +3,8 @@
 <PageTitle>Create</PageTitle>
 <MudText>Create transaction page</MudText>
 <MudForm @bind-IsValid="@success">
-    <MudTextField T="string" Label="Name" Required="true" RequiredError="Name is required!" @bind-value="Name" />
+    <MudTextField T="string" Label="Name" Required="true" RequiredError="Name is required!" @bind-value="name" />
+    <MudTextField T="double" Label="Value" Required="true" RequiredError="Value is required!" @bind-value="price" />
     <MudTextField T="string" Label="Description" @bind-Value="description" />
 
     <div class="d-flex align-center justify-space-between">
@@ -13,15 +14,27 @@
 </MudForm>
 
 @code {
-    private string Name = "";
-    private string description = "";
-    private bool IsIncome;
+    private string name = "";
+    private double price;
+    private string? description;
+    private bool isIncome;
+    List<int>? storagesId = new List<int>();
+    List<int>? categoriesId = new List<int>();
+
     static HttpClient httpClient = new HttpClient();
     bool success;
 
+    protected override async Task OnInitializedAsync()
+    {
+        var storages = await httpClient.GetFromJsonAsync<List<StoragesDTO>>("http://localhost:5220/api/storage");
+        var categories = await httpClient.GetFromJsonAsync<List<CategoriesDTO>>("http://localhost:5220/api/category");
+        storagesId = storages?.Select(x => x.Id).ToList();
+        categoriesId = categories?.Select(x => x.Id).ToList();
+    }
+
     private async void CreateStorage()
     {
-        var createData = new TransactionCreateDTO() { Name = Name, Description = description};
+        var createData = new TransactionCreateDTO() { Name = name, Description = description, Price = price, };
         await httpClient.PostAsJsonAsync("http://localhost:5220/api/category/", createData);
     }
 }

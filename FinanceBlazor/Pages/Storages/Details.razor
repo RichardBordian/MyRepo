@@ -36,7 +36,7 @@
 @code
 {
     [Parameter]
-    public string Id { get; set; } = "";
+    public string id { get; set; } = "";
     StorageViewDTO? storageInfo;
     static HttpClient httpClient = new HttpClient();
     List<TransactionByStorageDTO>? transactions = new List<TransactionByStorageDTO>();
@@ -44,8 +44,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        storageInfo = await httpClient.GetFromJsonAsync<StorageViewDTO>($"http://localhost:5220/api/Storage/{Id}");
-        transactions = await httpClient.GetFromJsonAsync<List<TransactionByStorageDTO>>($"http://localhost:5220/api/Transaction/storageid/{Id}");
+        storageInfo = await httpClient.GetFromJsonAsync<StorageViewDTO>($"http://localhost:5220/api/Storage/{id}");
+        transactions = await httpClient.GetFromJsonAsync<List<TransactionByStorageDTO>>($"http://localhost:5220/api/Transaction/storageid/{id}");
     }
 
     private void RowClickEvent(TableRowClickEventArgs<TransactionByStorageDTO> tableRowClickEventArgs)

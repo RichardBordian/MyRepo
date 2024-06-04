@@ -7,7 +7,7 @@
 
 @code{
     [Parameter]
-    public string Id { get; set; } = "";
+    public string id { get; set; } = "";
 
     private string storageName = "";
     private StorageViewDTO? storageInfo;
@@ -15,12 +15,12 @@
 
     protected override async Task OnInitializedAsync()
     {
-        storageInfo = await httpClient.GetFromJsonAsync<StorageViewDTO>($"http://localhost:5220/api/Storage/{Id}");
+        storageInfo = await httpClient.GetFromJsonAsync<StorageViewDTO>($"http://localhost:5220/api/Storage/{id}");
         storageName = storageInfo.Name;
     }
 
     private async void DeleteClick()
     {
-      await httpClient.DeleteAsync($"http://localhost:5220/api/Storage/{Id}");
+      await httpClient.DeleteAsync($"http://localhost:5220/api/Storage/{id}");
     }
 }
