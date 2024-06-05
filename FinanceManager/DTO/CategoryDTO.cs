@@ -1,6 +1,6 @@
 ﻿namespace FinanceManager.DTO
 {
-    public class CategoriesDTO
+    public class CategoryDTO
     {
         public int Id {  get; set; }
         public string? Name { get; set; }

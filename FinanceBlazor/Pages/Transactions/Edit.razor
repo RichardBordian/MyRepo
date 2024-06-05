@@ -1,40 +1,62 @@
-﻿@page "/Transactions/edit/{id}"
+﻿@page "/Transactions/edit/{id:int}"
 
 <PageTitle>Edit</PageTitle>
-<MudText> Edit @transactionsInfo?.Name</MudText>
+<MudText>Edit @transactionInfo?.Name</MudText>
 <MudForm @bind-IsValid="@success">
-    <MudTextField T="string" Label="Name" @bind-Value="Name"/>
-    <MudTextField T="string" Label="Description" @bind-Value="Description"/>
+    <MudTextField T="string" Label="Name" @bind-Value="name"/>
+    <MudTextField T="double" Label="Price" @bind-Value="price"/>
+    <MudDatePicker Label="Date" @bind-Date="date"/>
+    <MudTextField T="string" Label="Description" @bind-Value="description" />
+    <MudSelect T="int" @bind-value="storageId" Label="Storage" Required="true" RequiredError="storage is required!" AnchorOrigin="Origin.BottomCenter">
+        @foreach (var storage in storages)
+        {
+            <MudSelectItem T="int" value="@storage.Id"> @storage.Name</MudSelectItem>
+        }
+    </MudSelect>
+    <MudSelect T="int" @bind-value="categoryId" Label="Category" Required="true" RequiredError="category is required!" AnchorOrigin="Origin.BottomCenter">
+        @foreach (var category in categories)
+        {
+            <MudSelectItem T="int" value="@category.Id">@category.Name</MudSelectItem>
+        }
+    </MudSelect>
     <div class="d-flex align-center justify-space-between">
-    <MudRadioGroup @bind-Value="IsIncome">
-        <MudRadio Value="true" Color="Color.Primary" Dense="true">Income</MudRadio>
-        <MudRadio Value="false" Color="Color.Secondary" Dense="false">Expenses</MudRadio>
-    </MudRadioGroup>
-    <MudButton Href="/categories" OnClick="EditClick" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)">Edit</MudButton>
+        <MudCheckBox T="bool" Required="true" RequiredError="You must agree!" Label="Agree"/>
+        <MudButton Href="/" OnClick="EditButtonClick" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)" Class="m1-auto">Edit</MudButton>
     </div>
-
 </MudForm>
 
 @code{
     [Parameter]
-    public string Id { get; set; } = "";
-    private string? Name;
-    private string? Description;
-    bool IsIncome;
-    private TransactionDTO? transactionsInfo;
+    public int id { get; set; }
+    private string? name;
+    private double price;
+    private string? description;
+    private int storageId;
+    private int categoryId;
+    private DateTime? date;
+    List<StorageDTO>? storages = new List<StorageDTO>();
+    List<CategoryDTO>? categories = new List<CategoryDTO>();
+    private TransactionViewDTO? transactionInfo;
     static HttpClient httpClient = new HttpClient();
     bool success;
 
     protected override async Task OnInitializedAsync()
     {
-        transactionsInfo = await httpClient.GetFromJsonAsync<TransactionDTO>($"http://localhost:5220/api/category/{Id}");
-        Name = transactionsInfo?.Name;
-        Description = transactionsInfo?.Description;
+        transactionInfo = await httpClient.GetFromJsonAsync<TransactionViewDTO>($"http://localhost:5220/api/transaction/{id}");
+        name = transactionInfo.Name;
+        price = transactionInfo.Price;
+        date = transactionInfo.Date;
+        description = transactionInfo?.Description;
+        storageId = transactionInfo.Storage.Id;
+        categoryId = transactionInfo.Category.Id;
+
+        storages = await httpClient.GetFromJsonAsync<List<StorageDTO>>("http://localhost:5220/api/storage");
+        categories = await httpClient.GetFromJsonAsync<List<CategoryDTO>>("http://localhost:5220/api/category");
     }
 
-    private async void EditClick()
+    private async void EditButtonClick()
     {
-        CategoryUpdateDTO categoryUpdateDTO = new CategoryUpdateDTO() { Name = Name, Description = Description, IsIncome = IsIncome, Id = int.Parse(Id) };
-        await httpClient.PutAsJsonAsync($"http://localhost:5220/api/category/{Id}", categoryUpdateDTO);
+        var updateData = new TransactionUpdateDTO { Name = name, Price= price, Date = (DateTime)date, Descrpition = description, CategoryId = categoryId, StorageId = storageId, Id = id};
+        await httpClient.PutAsJsonAsync($"http://localhost:5220/api/transaction/{id}", updateData);
     }
 }

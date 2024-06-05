@@ -4,12 +4,24 @@
 <MudText>Create transaction page</MudText>
 <MudForm @bind-IsValid="@success">
     <MudTextField T="string" Label="Name" Required="true" RequiredError="Name is required!" @bind-value="name" />
-    <MudTextField T="double" Label="Value" Required="true" RequiredError="Value is required!" @bind-value="price" />
+    <MudTextField T="double" Label="Price" Required="true" RequiredError="Price is required!" @bind-value="price" />
+    <MudDatePicker Label="Date" @bind-Date="date"/>
     <MudTextField T="string" Label="Description" @bind-Value="description" />
-
+    <MudSelect T="int" @bind-value="storageId" Label="Storage" Required="true" RequiredError="storage is required!" AnchorOrigin="Origin.BottomCenter">
+        @foreach(var storage in storages)
+        {
+            <MudSelectItem T="int" value="@storage.Id"> @storage.Name</MudSelectItem>
+        }
+    </MudSelect>
+    <MudSelect T="int" @bind-value="categoryId" Label="Category" Required="true" RequiredError="category is required!" AnchorOrigin="Origin.BottomCenter">
+        @foreach(var category in categories)
+        {
+            <MudSelectItem T="int" value="@category.Id">@category.Name</MudSelectItem>
+        }
+    </MudSelect>
     <div class="d-flex align-center justify-space-between">
         <MudCheckBox T="bool" Required="true" RequiredError="You must agree!" Label="Agree" />
-        <MudButton Href="/" OnClick="CreateStorage" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)" Class="m1-auto">Create</MudButton>
+        <MudButton Href="/" OnClick="CreateButtonClick" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)" Class="m1-auto">Create</MudButton>
     </div>
 </MudForm>
 
@@ -18,23 +30,25 @@
     private double price;
     private string? description;
     private bool isIncome;
-    List<int>? storagesId = new List<int>();
-    List<int>? categoriesId = new List<int>();
+    private int storageId;
+    private int categoryId;
+    private DateTime? date = DateTime.Today;
+    List<StorageDTO>? storages = new List<StorageDTO>();
+    List<CategoryDTO>? categories = new List<CategoryDTO>();
 
     static HttpClient httpClient = new HttpClient();
     bool success;
 
     protected override async Task OnInitializedAsync()
     {
-        var storages = await httpClient.GetFromJsonAsync<List<StoragesDTO>>("http://localhost:5220/api/storage");
-        var categories = await httpClient.GetFromJsonAsync<List<CategoriesDTO>>("http://localhost:5220/api/category");
-        storagesId = storages?.Select(x => x.Id).ToList();
-        categoriesId = categories?.Select(x => x.Id).ToList();
+        storages = await httpClient.GetFromJsonAsync<List<StorageDTO>>("http://localhost:5220/api/storage");
+        categories = await httpClient.GetFromJsonAsync<List<CategoryDTO>>("http://localhost:5220/api/category");
     }
 
-    private async void CreateStorage()
+    private async void CreateButtonClick()
     {
-        var createData = new TransactionCreateDTO() { Name = name, Description = description, Price = price, };
-        await httpClient.PostAsJsonAsync("http://localhost:5220/api/category/", createData);
+        var createData = new TransactionCreateDTO() { Name = name, Description = description, Price = price, Date = (DateTime)date, StorageId = storageId, CategoryId = categoryId };
+        var ran = createData;
+        await httpClient.PostAsJsonAsync("http://localhost:5220/api/transaction/", createData);
     }
 }

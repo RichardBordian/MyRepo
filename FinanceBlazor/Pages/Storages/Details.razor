@@ -1,4 +1,4 @@
-﻿@page "/details/{id}"
+﻿@page "/details/{id:int}"
 
 <PageTitle>Details</PageTitle>
 <MudText Typo="Typo.h3" Class="ml-3">Name: @storageInfo?.Name</MudText>
@@ -7,7 +7,7 @@
 
 <MudTable
     T="TransactionByStorageDTO"
-    items ="@transactions"
+    items ="@storageInfo?.Transactions"
     Hover="true"
     Breakpoint="Breakpoint.Sm"
     RowClass="cursor-pointer"
@@ -18,7 +18,7 @@
         <MudTh>Name</MudTh>
         <MudTh>Price</MudTh>
         <MudTh>Date</MudTh>
-        <MudTh>CategoryId</MudTh>
+        <MudTh>Category name</MudTh>
         <MudTh>Description</MudTh>
     </HeaderContent>
 
@@ -28,7 +28,7 @@
         </MudLink>
         <MudTd DataLabel="Price">@context.Price</MudTd>
         <MudTd DataLabel="Date">@context.Date.ToShortDateString()</MudTd>
-        <MudTd DataLabel="CategoryId">@context.CategoryId</MudTd>
+        <MudTd DataLabel="Category name">@context.Category.Name</MudTd>
         <MudTd DataLabel="Description">@context.Description</MudTd>
     </RowTemplate>
 </MudTable>
@@ -36,20 +36,18 @@
 @code
 {
     [Parameter]
-    public string id { get; set; } = "";
+    public int id { get; set; }
     StorageViewDTO? storageInfo;
     static HttpClient httpClient = new HttpClient();
-    List<TransactionByStorageDTO>? transactions = new List<TransactionByStorageDTO>();
     string? href;
 
     protected override async Task OnInitializedAsync()
     {
         storageInfo = await httpClient.GetFromJsonAsync<StorageViewDTO>($"http://localhost:5220/api/Storage/{id}");
-        transactions = await httpClient.GetFromJsonAsync<List<TransactionByStorageDTO>>($"http://localhost:5220/api/Transaction/storageid/{id}");
     }
 
     private void RowClickEvent(TableRowClickEventArgs<TransactionByStorageDTO> tableRowClickEventArgs)
     {
-        href = "/transaction/details/" + tableRowClickEventArgs.Item.Id;
+        href = "/transactions/details/" + tableRowClickEventArgs.Item.Id;
     }
 }

@@ -16,7 +16,7 @@ namespace FinanceManager.Controllers
         public CategoryController(CategoryServices categoryServices) => _categoryServices = categoryServices;
 
         [HttpGet]
-        public async Task<List<CategoriesDTO>> GetAllAsync()
+        public async Task<List<CategoryDTO>> GetAllAsync()
         {
             return await _categoryServices.GetAllAsync();
         }

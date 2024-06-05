@@ -1,0 +1,19 @@
+﻿@page "/reports/period"
+
+<PageTitle>Period</PageTitle>
+<PageTitle>Choose date for take report:</PageTitle>
+
+<MudStack Row="true" Justify="Justify.FlexStart">
+    <MudDateRangePicker @bind-DateRange="@dateRange" Margin="Margin.Dense" Label="Choose Period" />
+    <MudButton Href="@href" OnClick="GetClick" Variant="Variant.Filled" Color="Color.Success" Class="m1-auto">Get</MudButton>
+</MudStack>
+
+@code {
+    private DateRange? dateRange;
+    private string href;
+
+    private void GetClick()
+    {
+        href = "/reports/period/" + dateRange.Start.Value.ToString("MM-dd-yyyy") + "/" + dateRange.End.Value.ToString("MM-dd-yyyy");
+    }
+}

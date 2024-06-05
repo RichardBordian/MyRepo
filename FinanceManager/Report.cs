@@ -1,4 +1,4 @@
-﻿using FinanceManager.Models;
+﻿using FinanceManager.DTO;
 
 namespace FinanceManager
 {
@@ -6,6 +6,6 @@ namespace FinanceManager
     {
         public double TotalIncome { get; set; }
         public double TotalExpences { get; set; }
-        public List<Transaction> Transactions { get; set; }
+        public List<TransactionDTO> Transactions { get; set; }
     }
 }

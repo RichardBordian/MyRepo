@@ -1,4 +1,4 @@
-﻿@page "/transactions/delete/{id}"
+﻿@page "/transactions/delete/{id:int}"
 
 <PageTitle>Delete</PageTitle>
 <MudText Typo="Typo.h4">Are you realy want to delete @Name?</MudText>
@@ -6,19 +6,19 @@
 
 @code {
     [Parameter]
-    public string Id { get; set; } = "";
+    public int Id { get; set; }
     private string? Name;
     private TransactionDTO? transactionInfo;
     static HttpClient httpClient = new HttpClient();
 
     protected override async Task OnInitializedAsync()
     {
-        transactionInfo = await httpClient.GetFromJsonAsync<TransactionDTO>($"http://localhost:5220/api/category/{Id}");
+        transactionInfo = await httpClient.GetFromJsonAsync<TransactionDTO>($"http://localhost:5220/api/transaction/{Id}");
         Name = transactionInfo?.Name;
     }
 
     private async void DeleteClick()
     {
-        await httpClient.DeleteAsync($"http://localhost:5220/api/category/{Id}");
+        await httpClient.DeleteAsync($"http://localhost:5220/api/transaction/{Id}");
     }
 }

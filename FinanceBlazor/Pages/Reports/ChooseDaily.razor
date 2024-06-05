@@ -1,0 +1,18 @@
+﻿@page "/reports/daily"
+
+<PageTitle>Daily</PageTitle>
+<PageTitle>Choose date for take report:</PageTitle>
+<MudStack Row="true" Justify="Justify.FlexStart">
+    <MudDatePicker Label="Date" @bind-Date="date" DateFormat="dd-MM-yyyy"/>
+<MudButton Href="@href" OnClick="GetClick" Variant="Variant.Filled" Color="Color.Success" Class="m1-auto">Get</MudButton>
+
+</MudStack>
+@code{
+    private DateTime? date = DateTime.Today;
+    private string href;
+
+    private void GetClick()
+    {
+        href = "/reports/daily/" + date.Value.ToString("MM-dd-yyyy");
+    }
+}

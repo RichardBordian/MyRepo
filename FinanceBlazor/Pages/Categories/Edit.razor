@@ -1,4 +1,4 @@
-﻿@page "/categories/edit/{id}"
+﻿@page "/categories/edit/{id:int}"
 
 <PageTitle>Edit</PageTitle>
 <MudText>Edit @categoryInfo?.Name</MudText>
@@ -13,7 +13,7 @@
 
 @code {
     [Parameter]
-    public string id { get; set; } = "";
+    public int id { get; set; }
     private string? name;
     private string? description;
     private bool isIncome;
@@ -31,7 +31,7 @@
 
     private async void EditClick()
     {
-        CategoryUpdateDTO categoryUpdateDTO = new CategoryUpdateDTO() { Name = name, Description = description, IsIncome = isIncome, Id = int.Parse(id) };
+        CategoryUpdateDTO categoryUpdateDTO = new CategoryUpdateDTO() { Name = name, Description = description, IsIncome = isIncome, Id = id };
         await httpClient.PutAsJsonAsync($"http://localhost:5220/api/Category/{id}", categoryUpdateDTO);
     }
 }

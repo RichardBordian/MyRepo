@@ -16,7 +16,7 @@ namespace FinanceManager.Controllers
         public StorageController(StorageServices storageServices) => _storageServices = storageServices;
 
         [HttpGet]
-        public async Task<List<StoragesDTO>> GetAllAsync()
+        public async Task<List<StorageDTO>> GetAllAsync()
         {
             return await _storageServices.GetAllAsync();
         }

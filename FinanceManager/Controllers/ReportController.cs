@@ -16,23 +16,23 @@ namespace FinanceManager.Controllers
 
         public ReportController(ReportServices reportServices) => _reportServices = reportServices;
 
-        [HttpGet("daily")]
-        public ActionResult<Report> DailyReport([FromRoute]DateTime date)
+        [HttpGet("{date}")]
+        public ActionResult<Report> DailyReport([FromRoute] DateTime date)
         {
             var result = _reportServices.DailyReport(date);
 
             return Ok(result);
         }
 
-        [HttpGet("period")]
-        public ActionResult<Report> PeriodReport([FromRoute] DateTime from, [FromRoute]DateTime to)
+        [HttpGet("{from}/{to}")]
+        public ActionResult<Report> PeriodReport([FromRoute] DateTime from, [FromRoute] DateTime to)
         {
             try
             {
                 var result = _reportServices.PeriodReport(from, to);
                 return Ok(result);
             }
-            catch 
+            catch
             {
                 return BadRequest();
             }

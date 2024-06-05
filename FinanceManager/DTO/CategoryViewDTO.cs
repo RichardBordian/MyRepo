@@ -8,6 +8,6 @@ namespace FinanceManager.DTO
         public string? Name { get; set; }
         public string? Description { get; set; }
         public bool IsIncome { get; set; }
-        public List<Transaction>? transactions { get; set; }
+        public List<TransactionByCategoryDTO>? Transactions { get; set; }
     }
 }

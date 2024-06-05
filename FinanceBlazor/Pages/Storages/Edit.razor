@@ -1,4 +1,4 @@
-﻿@page "/edit/{id}"
+﻿@page "/edit/{id:int}"
 
 <PageTitle>Edit</PageTitle>
 <MudText>Edit @storageInfo?.Name</MudText>
@@ -13,7 +13,7 @@
 
 @code{
     [Parameter]
-    public string id { get; set; }= "";
+    public int id { get; set; }
     private string? name;
     private double value;
     private StorageViewDTO? storageInfo;
@@ -29,7 +29,7 @@
 
     private async void EditClick()
     {
-        StorageUpdateDTO storageUpdateDTO = new StorageUpdateDTO() { Name = name, Value = value, Id = int.Parse(id) };
+        StorageUpdateDTO storageUpdateDTO = new StorageUpdateDTO() { Name = name, Value = value, Id = id };
         await httpClient.PutAsJsonAsync($"http://localhost:5220/api/Storage/{id}", storageUpdateDTO);
     }
 }

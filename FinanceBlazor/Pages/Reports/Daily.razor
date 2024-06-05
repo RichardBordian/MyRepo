@@ -1,12 +1,14 @@
-﻿@page "/categories/details/{id:int}"
+﻿@using FinanceManager
 
-<PageTitle>Details</PageTitle>
-<MudText Typo="Typo.h3" Class="ml-3">Name: @categoryInfo?.Name</MudText>
-<MudText Typo="Typo.h4" Class="ml-3">Descriptions: @categoryInfo?.Description</MudText>
-<MudText Typo="Typo.h5" Class="ml-3">Transactions list</MudText>
+@page "/reports/daily/{date:datetime}"
 
-<MudTable T="TransactionByCategoryDTO"
-          items="@categoryInfo?.Transactions"
+<PageTitle> @date report</PageTitle>
+<MudText>it's a daily report for @date</MudText>
+<MudTh>Total income: @report?.TotalIncome</MudTh>
+<MudTh>Total excpences: @report?.TotalExpences</MudTh>
+
+<MudTable T="TransactionDTO"
+          items="@report?.Transactions"
           Hover="true"
           Breakpoint="Breakpoint.Sm"
           RowClass="cursor-pointer"
@@ -30,22 +32,22 @@
         <MudTd DataLabel="Storage name">@context.Storage.Name</MudTd>
         <MudTd DataLabel="Description">@context.Description</MudTd>
     </RowTemplate>
-</MudTable>
+    </MudTable>
 
 @code
 {
     [Parameter]
-    public int id { get; set; }
-    CategoryViewDTO? categoryInfo;
-    static HttpClient httpClient = new HttpClient();
-    string? href;
+    public DateTime date { get; set; }
+    Report? report;
+    private string href;
+    private static HttpClient httpClient = new HttpClient();
 
     protected override async Task OnInitializedAsync()
     {
-        categoryInfo = await httpClient.GetFromJsonAsync<CategoryViewDTO>($"http://localhost:5220/api/category/{id}");
+        report = await httpClient.GetFromJsonAsync<Report>($"http://localhost:5220/api/Report/{date.ToString("MM-dd-yyyy")}");
     }
 
-    private void RowClickEvent(TableRowClickEventArgs<TransactionByCategoryDTO> tableRowClickEventArgs)
+    private void RowClickEvent(TableRowClickEventArgs<TransactionDTO> tableRowClickEventArgs)
     {
         href = "/transactions/details/" + tableRowClickEventArgs.Item.Id;
     }

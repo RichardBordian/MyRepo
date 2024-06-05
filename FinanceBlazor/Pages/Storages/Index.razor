@@ -18,7 +18,7 @@
 </MudGrid>
 
 <MudTable 
-    T="StoragesDTO"
+    T="StorageDTO"
     Items="@storages" 
     Hover="true" 
     Breakpoint="Breakpoint.Sm"
@@ -48,15 +48,15 @@
     private string? editRef;
     private string? deleteRef;
     private string? detailsRef;
-    private List<StoragesDTO>? storages = new List<StoragesDTO>();
+    private List<StorageDTO>? storages = new List<StorageDTO>();
     static HttpClient httpClient = new HttpClient();
 
     protected override async Task OnInitializedAsync()
     {
-        storages = await httpClient.GetFromJsonAsync<List<StoragesDTO>>("http://localhost:5220/api/Storage");
+        storages = await httpClient.GetFromJsonAsync<List<StorageDTO>>("http://localhost:5220/api/Storage");
     }
     
-    private void RowClickEvent(TableRowClickEventArgs<StoragesDTO> tableRowClickEventArgs)
+    private void RowClickEvent(TableRowClickEventArgs<StorageDTO> tableRowClickEventArgs)
     {
         detailsRef = "/details/" + tableRowClickEventArgs.Item.Id;
         editRef = "/edit/" + tableRowClickEventArgs.Item.Id;

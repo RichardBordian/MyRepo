@@ -28,22 +28,21 @@
         <MudTh>Price</MudTh>
         <MudTh>Date</MudTh>
         <MudTh>Description</MudTh>
-        <MudTh>StorageId</MudTh>
-        <MudTh>CategoryId</MudTh>
+        <MudTh>Storage name</MudTh>
+        <MudTh>Category name</MudTh>
     </HeaderContent>
 
     <RowTemplate>
         <MudLink Href="@detailsRef" Underline="Underline.Always">
             <MudTd DataLabel="Name">@context.Name</MudTd>
+        </MudLink>
             <MudTd DataLabel="Price">@context.Price</MudTd>
             <MudTd DataLabel="Date">@context.Date.ToShortDateString()</MudTd>
             <MudTd DataLabel="Description">@context.Description</MudTd>
-            <MudTd DataLabel="StorageId">@context.StorageId</MudTd>
-            <MudTd DataLabel="CategoryId">@context.CategoryId</MudTd>
-        </MudLink>
-
-        <MudLink Href="@editRef">Edit</MudLink> |
-        <MudLink Href="@deleteRef">Delete</MudLink>
+            <MudTd DataLabel="Storage name">@context.Storage.Name</MudTd>
+            <MudTd DataLabel="Category name">@context.Category.Name</MudTd>
+            <MudLink Href="@editRef">Edit</MudLink> |
+            <MudLink Href="@deleteRef">Delete</MudLink>
     </RowTemplate>
 </MudTable>
 
@@ -61,9 +60,9 @@
 
     private void RowClickEvent(TableRowClickEventArgs<TransactionDTO> tableRowClickEventArgs)
     {
-        detailsRef = "categories/details/" + tableRowClickEventArgs.Item.Id;
-        editRef = "categories/edit/" + tableRowClickEventArgs.Item.Id;
-        deleteRef = "categories/delete/" + tableRowClickEventArgs.Item.Id;
+        detailsRef = "transactions/details/" + tableRowClickEventArgs.Item.Id;
+        editRef = "transactions/edit/" + tableRowClickEventArgs.Item.Id;
+        deleteRef = "transactions/delete/" + tableRowClickEventArgs.Item.Id;
     }
 }
 

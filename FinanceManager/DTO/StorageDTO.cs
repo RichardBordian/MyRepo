@@ -1,6 +1,6 @@
 ﻿namespace FinanceManager.DTO
 {
-    public class StoragesDTO
+    public class StorageDTO
     {
         public int Id { get; set; }
         public string? Name { get; set; }

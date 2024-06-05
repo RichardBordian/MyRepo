@@ -1,5 +1,23 @@
-﻿<h3>Details</h3>
+﻿@page "/transactions/details/{id:int}"
 
-@code {
+<PageTitle>Details</PageTitle>
 
+<MudTh>Name: @transaction?.Name</MudTh>
+<MudTh>Price: @transaction?.Price</MudTh>
+<MudTh>Date: @transaction?.Date.ToShortDateString()</MudTh>
+<MudTh>Storage: @transaction?.Storage.Name</MudTh>
+<MudTh>Category: @transaction?.Category.Name</MudTh>
+<MudTh>Description: @transaction?.Description</MudTh>
+
+@code
+{
+    [Parameter]
+    public int id { get; set; }
+    static HttpClient httpClient = new HttpClient();
+    TransactionViewDTO? transaction;
+
+    protected override async Task OnInitializedAsync()
+    {
+        transaction = await httpClient.GetFromJsonAsync<TransactionViewDTO>($"http://localhost:5220/api/transaction/{id}");
+    }
 }
