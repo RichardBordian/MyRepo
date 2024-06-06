@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using FinanceManager.Services;
+using FinanceManager.common.DTO;
 
 namespace FinanceManager.Controllers
 {
@@ -17,7 +18,7 @@ namespace FinanceManager.Controllers
         public ReportController(ReportServices reportServices) => _reportServices = reportServices;
 
         [HttpGet("{date}")]
-        public ActionResult<Report> DailyReport([FromRoute] DateTime date)
+        public ActionResult<ReportDTO> DailyReport([FromRoute] DateTime date)
         {
             var result = _reportServices.DailyReport(date);
 
@@ -25,7 +26,7 @@ namespace FinanceManager.Controllers
         }
 
         [HttpGet("{from}/{to}")]
-        public ActionResult<Report> PeriodReport([FromRoute] DateTime from, [FromRoute] DateTime to)
+        public ActionResult<ReportDTO> PeriodReport([FromRoute] DateTime from, [FromRoute] DateTime to)
         {
             try
             {

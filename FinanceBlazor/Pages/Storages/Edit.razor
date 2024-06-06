@@ -17,12 +17,12 @@
     private string? name;
     private double value;
     private StorageViewDTO? storageInfo;
-    static HttpClient httpClient = new HttpClient();
+    private readonly StorageServices _storageServices = new StorageServices();
     bool success;
 
     protected override async Task OnInitializedAsync()
     {
-        storageInfo = await httpClient.GetFromJsonAsync<StorageViewDTO>($"http://localhost:5220/api/Storage/{id}");
+        storageInfo = await _storageServices.GetByIdAsync(id);
         name = storageInfo?.Name;
         value = storageInfo.Value;
     }
@@ -30,6 +30,6 @@
     private async void EditClick()
     {
         StorageUpdateDTO storageUpdateDTO = new StorageUpdateDTO() { Name = name, Value = value, Id = id };
-        await httpClient.PutAsJsonAsync($"http://localhost:5220/api/Storage/{id}", storageUpdateDTO);
+        await _storageServices.EditAsync(storageUpdateDTO, id);
     }
 }

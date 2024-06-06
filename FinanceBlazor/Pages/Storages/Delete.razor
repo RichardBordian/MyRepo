@@ -10,16 +10,16 @@
     public int id { get; set; }
     private string storageName = "";
     private StorageViewDTO? storageInfo;
-    static HttpClient httpClient = new HttpClient();
+    private readonly StorageServices _storageServices = new StorageServices(); 
 
     protected override async Task OnInitializedAsync()
     {
-        storageInfo = await httpClient.GetFromJsonAsync<StorageViewDTO>($"http://localhost:5220/api/Storage/{id}");
+        storageInfo = await _storageServices.GetByIdAsync(id);
         storageName = storageInfo.Name;
     }
 
     private async void DeleteClick()
     {
-      await httpClient.DeleteAsync($"http://localhost:5220/api/Storage/{id}");
+        await _storageServices.DeleteAsync(id);
     }
 }

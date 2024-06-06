@@ -1,4 +1,4 @@
-﻿using FinanceManager.DTO;
+﻿using FinanceManager.common.DTO;
 using FinanceManager.Services;
 using Microsoft.AspNetCore.Mvc;
 

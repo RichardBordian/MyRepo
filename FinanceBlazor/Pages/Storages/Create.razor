@@ -14,12 +14,13 @@
 @code{
     private string name = "";
     private double value;
-    static HttpClient httpClient = new HttpClient();
+    private readonly StorageServices _storageServices = new StorageServices();
+    
     bool success;
 
     private async void CreateButtonClick()
     {
         var createData = new StorageCreateDTO() { Name = name, Value = value };
-        await httpClient.PostAsJsonAsync("http://localhost:5220/api/Storage/", createData);
+        await _storageServices.CreateASync(createData);
     }
 }

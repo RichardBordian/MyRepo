@@ -1,6 +1,4 @@
-﻿using FinanceManager.Models;
-
-namespace FinanceManager.DTO
+﻿namespace FinanceManager.common.DTO
 {
     public class StorageViewDTO
     {

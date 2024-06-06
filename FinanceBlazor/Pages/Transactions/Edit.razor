@@ -37,12 +37,14 @@
     List<StorageDTO>? storages = new List<StorageDTO>();
     List<CategoryDTO>? categories = new List<CategoryDTO>();
     private TransactionViewDTO? transactionInfo;
-    static HttpClient httpClient = new HttpClient();
+    private readonly TransactionServices _transactionServices = new TransactionServices();
+    private readonly StorageServices _storageServices = new StorageServices();
+    private readonly CategoryServices _categoryServices = new CategoryServices();
     bool success;
 
     protected override async Task OnInitializedAsync()
     {
-        transactionInfo = await httpClient.GetFromJsonAsync<TransactionViewDTO>($"http://localhost:5220/api/transaction/{id}");
+        transactionInfo = await _transactionServices.GetByIdAsync(id);
         name = transactionInfo.Name;
         price = transactionInfo.Price;
         date = transactionInfo.Date;
@@ -50,13 +52,13 @@
         storageId = transactionInfo.Storage.Id;
         categoryId = transactionInfo.Category.Id;
 
-        storages = await httpClient.GetFromJsonAsync<List<StorageDTO>>("http://localhost:5220/api/storage");
-        categories = await httpClient.GetFromJsonAsync<List<CategoryDTO>>("http://localhost:5220/api/category");
+        storages = await _storageServices.GetAllAsync();
+        categories = await _categoryServices.GetAllAsync();
     }
 
     private async void EditButtonClick()
     {
-        var updateData = new TransactionUpdateDTO { Name = name, Price= price, Date = (DateTime)date, Descrpition = description, CategoryId = categoryId, StorageId = storageId, Id = id};
-        await httpClient.PutAsJsonAsync($"http://localhost:5220/api/transaction/{id}", updateData);
+        var updateData = new TransactionUpdateDTO { Name = name, Price= price, Date = (DateTime)date, Description = description, CategoryId = categoryId, StorageId = storageId, Id = id};
+        await _transactionServices.EditAsync(updateData, id);
     }
 }

@@ -1,4 +1,4 @@
-﻿using FinanceManager.DTO;
+﻿using FinanceManager.common.DTO;
 
 namespace FinanceManager.Services
 {
@@ -12,7 +12,7 @@ namespace FinanceManager.Services
 
         public ReportServices(Context context) => _context = context;
 
-        public Report DailyReport(DateTime date)
+        public ReportDTO DailyReport(DateTime date)
         {
             var transactions = _context.Transactions
                 .Where(x => x.Date.Date == date.Date)
@@ -38,14 +38,14 @@ namespace FinanceManager.Services
                 .Select(x => x.Price)
                 .Sum();
 
-            return new Report
+            return new ReportDTO
             { 
-                TotalExpences = totalExpences, 
+                TotalExpenses = totalExpences, 
                 TotalIncome = totalIncome, 
                 Transactions = transactions };
         }
 
-        public Report PeriodReport(DateTime startDate, DateTime endDate)
+        public ReportDTO PeriodReport(DateTime startDate, DateTime endDate)
         {
             if(startDate > endDate)
             {
@@ -76,7 +76,7 @@ namespace FinanceManager.Services
                 .Select(x => x.Price)
                 .Sum();
 
-            return new Report { TotalExpences = totalExpences, TotalIncome = totalIncome, Transactions = transactions };
+            return new ReportDTO { TotalExpenses = totalExpences, TotalIncome = totalIncome, Transactions = transactions };
         }
     }
 }

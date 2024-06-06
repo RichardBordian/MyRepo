@@ -38,12 +38,12 @@
     [Parameter]
     public int id { get; set; }
     StorageViewDTO? storageInfo;
-    static HttpClient httpClient = new HttpClient();
+    private readonly StorageServices _storageServices = new StorageServices();
     string? href;
 
     protected override async Task OnInitializedAsync()
     {
-        storageInfo = await httpClient.GetFromJsonAsync<StorageViewDTO>($"http://localhost:5220/api/Storage/{id}");
+        storageInfo = await _storageServices.GetByIdAsync(id);
     }
 
     private void RowClickEvent(TableRowClickEventArgs<TransactionByStorageDTO> tableRowClickEventArgs)

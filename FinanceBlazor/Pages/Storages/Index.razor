@@ -49,11 +49,11 @@
     private string? deleteRef;
     private string? detailsRef;
     private List<StorageDTO>? storages = new List<StorageDTO>();
-    static HttpClient httpClient = new HttpClient();
+    private readonly StorageServices _storageServices = new StorageServices();
 
     protected override async Task OnInitializedAsync()
     {
-        storages = await httpClient.GetFromJsonAsync<List<StorageDTO>>("http://localhost:5220/api/Storage");
+        storages = await _storageServices.GetAllAsync();
     }
     
     private void RowClickEvent(TableRowClickEventArgs<StorageDTO> tableRowClickEventArgs)

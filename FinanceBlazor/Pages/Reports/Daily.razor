@@ -1,11 +1,9 @@
-﻿@using FinanceManager
-
-@page "/reports/daily/{date:datetime}"
+﻿@page "/reports/daily/{date:datetime}"
 
 <PageTitle> @date report</PageTitle>
 <MudText>it's a daily report for @date</MudText>
 <MudTh>Total income: @report?.TotalIncome</MudTh>
-<MudTh>Total excpences: @report?.TotalExpences</MudTh>
+<MudTh>Total excpences: @report?.TotalExpenses</MudTh>
 
 <MudTable T="TransactionDTO"
           items="@report?.Transactions"
@@ -38,13 +36,13 @@
 {
     [Parameter]
     public DateTime date { get; set; }
-    Report? report;
+    ReportDTO? report;
     private string href;
-    private static HttpClient httpClient = new HttpClient();
+    private readonly ReportServices _reportServices = new ReportServices();
 
     protected override async Task OnInitializedAsync()
     {
-        report = await httpClient.GetFromJsonAsync<Report>($"http://localhost:5220/api/Report/{date.ToString("MM-dd-yyyy")}");
+        report = await _reportServices.GetDailyAsync(date);
     }
 
     private void RowClickEvent(TableRowClickEventArgs<TransactionDTO> tableRowClickEventArgs)

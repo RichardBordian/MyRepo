@@ -1,4 +1,4 @@
-﻿namespace FinanceManager.DTO
+﻿namespace FinanceManager.common.DTO
 {
     public class StorageUpdateDTO
     {

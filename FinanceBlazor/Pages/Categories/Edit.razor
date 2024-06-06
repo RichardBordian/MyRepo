@@ -18,12 +18,12 @@
     private string? description;
     private bool isIncome;
     private CategoryViewDTO? categoryInfo;
-    static HttpClient httpClient = new HttpClient();
+    private readonly CategoryServices _categoryServices = new CategoryServices();
     bool success;
 
     protected override async Task OnInitializedAsync()
     {
-        categoryInfo = await httpClient.GetFromJsonAsync<CategoryViewDTO>($"http://localhost:5220/api/Category/{id}");
+        categoryInfo = await _categoryServices.GetByIdAsync(id);
         name = categoryInfo?.Name;
         description = categoryInfo?.Description;
         isIncome = categoryInfo.IsIncome;
@@ -31,7 +31,7 @@
 
     private async void EditClick()
     {
-        CategoryUpdateDTO categoryUpdateDTO = new CategoryUpdateDTO() { Name = name, Description = description, IsIncome = isIncome, Id = id };
-        await httpClient.PutAsJsonAsync($"http://localhost:5220/api/Category/{id}", categoryUpdateDTO);
+        CategoryUpdateDTO categoryUpdateDto = new CategoryUpdateDTO() { Name = name, Description = description, IsIncome = isIncome, Id = id };
+        await _categoryServices.EditAsync(categoryUpdateDto, id);
     }
 }

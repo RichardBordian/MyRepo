@@ -35,14 +35,15 @@
 @code
 {
     [Parameter]
-    public int id { get; set; }
+    public int Id { get; set; }
     CategoryViewDTO? categoryInfo;
-    static HttpClient httpClient = new HttpClient();
+    static HttpClient _httpClient = new HttpClient();
     string? href;
-
+    private readonly CategoryServices _categoryServices = new CategoryServices();
+    
     protected override async Task OnInitializedAsync()
     {
-        categoryInfo = await httpClient.GetFromJsonAsync<CategoryViewDTO>($"http://localhost:5220/api/category/{id}");
+        categoryInfo = await _categoryServices.GetByIdAsync(Id);
     }
 
     private void RowClickEvent(TableRowClickEventArgs<TransactionByCategoryDTO> tableRowClickEventArgs)

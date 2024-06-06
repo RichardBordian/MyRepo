@@ -13,11 +13,11 @@
 {
     [Parameter]
     public int id { get; set; }
-    static HttpClient httpClient = new HttpClient();
+    private readonly TransactionServices _transactionServices = new TransactionServices();
     TransactionViewDTO? transaction;
 
     protected override async Task OnInitializedAsync()
     {
-        transaction = await httpClient.GetFromJsonAsync<TransactionViewDTO>($"http://localhost:5220/api/transaction/{id}");
+        transaction = await _transactionServices.GetByIdAsync(id);
     }
 }

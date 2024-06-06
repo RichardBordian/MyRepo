@@ -6,19 +6,19 @@
 
 @code {
     [Parameter]
-    public int Id { get; set; }
+    public int id { get; set; }
     private string? Name;
-    private TransactionDTO? transactionInfo;
-    static HttpClient httpClient = new HttpClient();
+    private TransactionViewDTO? transactionInfo;
+    private readonly TransactionServices _transactionServices = new TransactionServices();
 
     protected override async Task OnInitializedAsync()
     {
-        transactionInfo = await httpClient.GetFromJsonAsync<TransactionDTO>($"http://localhost:5220/api/transaction/{Id}");
+        transactionInfo = await _transactionServices.GetByIdAsync(id);
         Name = transactionInfo?.Name;
     }
 
     private async void DeleteClick()
     {
-        await httpClient.DeleteAsync($"http://localhost:5220/api/transaction/{Id}");
+        await _transactionServices.DeleteAsync(id);
     }
 }

@@ -43,11 +43,11 @@
     private string? deleteRef;
     private string? detailsRef;
     private List<CategoryDTO>? categories = new List<CategoryDTO>();
-    static HttpClient httpClient = new HttpClient();
+    private readonly CategoryServices _categoryServices = new CategoryServices();
 
     protected override async Task OnInitializedAsync()
     {
-        categories = await httpClient.GetFromJsonAsync<List<CategoryDTO>>("http://localhost:5220/api/category");
+        categories = await _categoryServices.GetAllAsync();
     }
 
     private void RowClickEvent(TableRowClickEventArgs<CategoryDTO> tableRowClickEventArgs)

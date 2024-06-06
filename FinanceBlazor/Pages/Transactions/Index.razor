@@ -51,11 +51,11 @@
     private string? deleteRef;
     private string? detailsRef;
     private List<TransactionDTO>? transactions = new List<TransactionDTO>();
-    static HttpClient httpClient = new HttpClient();
+    private readonly TransactionServices _transactionServices = new TransactionServices(); 
 
     protected override async Task OnInitializedAsync()
     {
-        transactions = await httpClient.GetFromJsonAsync<List<TransactionDTO>>("http://localhost:5220/api/transaction");
+        transactions = await _transactionServices.GetAllAsync();
     }
 
     private void RowClickEvent(TableRowClickEventArgs<TransactionDTO> tableRowClickEventArgs)

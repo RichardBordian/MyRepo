@@ -1,5 +1,5 @@
-﻿using FinanceManager.DTO;
-using FinanceManager.Models;
+﻿using FinanceManager.Models;
+using FinanceManager.common.DTO;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceManager.Services
@@ -97,22 +97,27 @@ namespace FinanceManager.Services
             {
                 transaction.Name = transactionData.Name;
             }
+
             if (transactionData.Date != transaction.Date)
             {
                 transaction.Date = transactionData.Date;
             }
+            
             if (transactionData.CategoryId != transaction.CategoryId)
             {
                 transaction.CategoryId = transactionData.CategoryId;
             }
+            
             if (transactionData.Price != transaction.Price)
             {
                 transaction.Price = transactionData.Price;
             }
-            if (transactionData.Descrpition != null & transactionData.Descrpition != transaction.Description)
+            
+            if (transactionData.Description != null & transactionData.Description != transaction.Description)
             {
-                transaction.Description = transactionData.Descrpition;
+                transaction.Description = transactionData.Description;
             }
+            
             if (transactionData.StorageId != transaction.StorageId)
             {
                 transaction.StorageId = transactionData.StorageId;

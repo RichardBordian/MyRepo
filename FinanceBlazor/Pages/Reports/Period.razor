@@ -1,11 +1,12 @@
 ﻿@using FinanceManager
+@using FinanceManager.common.DTO
 
 @page "/reports/period/{start:datetime}/{end:datetime}"
 
 <PageTitle> Period report</PageTitle>
 <MudText>it's a daily report from @start.ToShortDateString() to @end.ToShortDateString()</MudText>
 <MudTh>Total income: @report?.TotalIncome</MudTh>
-<MudTh>Total excpences: @report?.TotalExpences</MudTh>
+<MudTh>Total excpences: @report?.TotalExpenses</MudTh>
 
 <MudTable T="TransactionDTO"
           items="@report?.Transactions"
@@ -41,13 +42,13 @@
     [Parameter]
     public DateTime end{ get; set; }
 
-    Report? report;
+    ReportDTO? report;
     private string href;
-    private static HttpClient httpClient = new HttpClient();
+    private readonly ReportServices _reportServices = new ReportServices();
 
     protected override async Task OnInitializedAsync()
     {
-        report = await httpClient.GetFromJsonAsync<Report>($"http://localhost:5220/api/Report/{start.ToString("MM-dd-yyyy")}/{end.ToString("MM-dd-yyyy")}");
+        report = await _reportServices.GetPeriodAsync(start, end);
     }
 
     private void RowClickEvent(TableRowClickEventArgs<TransactionDTO> tableRowClickEventArgs)

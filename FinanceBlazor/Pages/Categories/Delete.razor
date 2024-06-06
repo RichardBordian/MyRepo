@@ -11,15 +11,15 @@
     private string? name;
     private CategoryViewDTO? categoryInfo;
     static HttpClient httpClient = new HttpClient();
-
+    private readonly CategoryServices _categoryServices = new CategoryServices();
     protected override async Task OnInitializedAsync()
     {
-        categoryInfo = await httpClient.GetFromJsonAsync<CategoryViewDTO>($"http://localhost:5220/api/category/{id}");
+        categoryInfo = await _categoryServices.GetByIdAsync(id);
         name = categoryInfo?.Name;
     }
 
     private async void DeleteClick()
     {
-        await httpClient.DeleteAsync($"http://localhost:5220/api/category/{id}");
+        await _categoryServices.DeleteAsync(id);
     }
 }
