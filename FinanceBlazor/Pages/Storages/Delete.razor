@@ -1,4 +1,5 @@
 ﻿@page "/delete/{id:int}"
+@inject StorageServices storageServices
 
 <PageTitle>Delete</PageTitle>
 <MudText Typo="Typo.h4">Are you realy want to delete @storageName?</MudText>
@@ -8,18 +9,17 @@
 @code{
     [Parameter]
     public int id { get; set; }
-    private string storageName = "";
+    private string? storageName;
     private StorageViewDTO? storageInfo;
-    private readonly StorageServices _storageServices = new StorageServices(); 
 
     protected override async Task OnInitializedAsync()
     {
-        storageInfo = await _storageServices.GetByIdAsync(id);
-        storageName = storageInfo.Name;
+        storageInfo = await storageServices.GetByIdAsync(id);
+        storageName = storageInfo?.Name;
     }
 
     private async void DeleteClick()
     {
-        await _storageServices.DeleteAsync(id);
+        await storageServices.DeleteAsync(id);
     }
 }

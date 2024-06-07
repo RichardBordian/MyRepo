@@ -1,4 +1,5 @@
 ﻿@page "/transactions/details/{id:int}"
+@inject TransactionServices transactionServices
 
 <PageTitle>Details</PageTitle>
 
@@ -13,11 +14,10 @@
 {
     [Parameter]
     public int id { get; set; }
-    private readonly TransactionServices _transactionServices = new TransactionServices();
     TransactionViewDTO? transaction;
 
     protected override async Task OnInitializedAsync()
     {
-        transaction = await _transactionServices.GetByIdAsync(id);
+        transaction = await transactionServices.GetByIdAsync(id);
     }
 }

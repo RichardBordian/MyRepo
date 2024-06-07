@@ -1,4 +1,5 @@
 ﻿@page "/categories/"
+@inject CategoryServices categoryServices
 
 <PageTitle>Categories</PageTitle>
 
@@ -43,11 +44,10 @@
     private string? deleteRef;
     private string? detailsRef;
     private List<CategoryDTO>? categories = new List<CategoryDTO>();
-    private readonly CategoryServices _categoryServices = new CategoryServices();
 
     protected override async Task OnInitializedAsync()
     {
-        categories = await _categoryServices.GetAllAsync();
+        categories = await categoryServices.GetAllAsync();
     }
 
     private void RowClickEvent(TableRowClickEventArgs<CategoryDTO> tableRowClickEventArgs)

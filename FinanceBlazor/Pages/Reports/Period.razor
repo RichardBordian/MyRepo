@@ -1,7 +1,5 @@
-﻿@using FinanceManager
-@using FinanceManager.common.DTO
-
-@page "/reports/period/{start:datetime}/{end:datetime}"
+﻿@page "/reports/period/{start:datetime}/{end:datetime}"
+@inject ReportServices reportServices
 
 <PageTitle> Period report</PageTitle>
 <MudText>it's a daily report from @start.ToShortDateString() to @end.ToShortDateString()</MudText>
@@ -44,11 +42,10 @@
 
     ReportDTO? report;
     private string href;
-    private readonly ReportServices _reportServices = new ReportServices();
 
     protected override async Task OnInitializedAsync()
     {
-        report = await _reportServices.GetPeriodAsync(start, end);
+        report = await reportServices.GetPeriodAsync(start, end);
     }
 
     private void RowClickEvent(TableRowClickEventArgs<TransactionDTO> tableRowClickEventArgs)

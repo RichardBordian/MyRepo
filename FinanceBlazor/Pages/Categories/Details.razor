@@ -1,4 +1,5 @@
 ﻿@page "/categories/details/{id:int}"
+@inject CategoryServices categoryServices
 
 <PageTitle>Details</PageTitle>
 <MudText Typo="Typo.h3" Class="ml-3">Name: @categoryInfo?.Name</MudText>
@@ -39,11 +40,10 @@
     CategoryViewDTO? categoryInfo;
     static HttpClient _httpClient = new HttpClient();
     string? href;
-    private readonly CategoryServices _categoryServices = new CategoryServices();
     
     protected override async Task OnInitializedAsync()
     {
-        categoryInfo = await _categoryServices.GetByIdAsync(Id);
+        categoryInfo = await categoryServices.GetByIdAsync(Id);
     }
 
     private void RowClickEvent(TableRowClickEventArgs<TransactionByCategoryDTO> tableRowClickEventArgs)

@@ -1,3 +1,4 @@
+using FinanceBlazor.Services;
 using MudBlazor.Services;
 
 namespace FinanceBlazor
@@ -7,12 +8,18 @@ namespace FinanceBlazor
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
             builder.Services.AddMudServices();
-            // Add services to the container.
-            builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
 
+            builder.Services.AddSingleton<StorageServices>();
+            builder.Services.AddSingleton<CategoryServices>();
+            builder.Services.AddSingleton<TransactionServices>();
+            builder.Services.AddSingleton<ReportServices>();
+
             builder.Services.AddHttpClient();
+
+            builder.Services.AddRazorPages();
 
             var app = builder.Build();
 

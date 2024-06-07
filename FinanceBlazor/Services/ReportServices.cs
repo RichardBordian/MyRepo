@@ -5,9 +5,14 @@ namespace FinanceBlazor.Services
     public class ReportServices
     {
         private static readonly HttpClient _httpClient = new HttpClient();
-        private static IConfiguration _configuration;
-        
-        private readonly string _controllerRoute = _configuration.GetValue<string>("BaseUrl") + "/report";
+        private static IConfiguration _config;
+        private readonly string _controllerRoute;
+     
+        public ReportServices(IConfiguration config)
+        {
+            _config = config;
+            _controllerRoute = _config.GetValue<string>("ServerUrl") + "/report";
+        }
 
         public async Task<ReportDTO?> GetDailyAsync(DateTime date)
         {
@@ -15,7 +20,7 @@ namespace FinanceBlazor.Services
             return await _httpClient.GetFromJsonAsync<ReportDTO>(url);  
         }
 
-        public async Task<ReportDTO> GetPeriodAsync(DateTime from, DateTime to)
+        public async Task<ReportDTO?> GetPeriodAsync(DateTime from, DateTime to)
         {
             var url = $"{_controllerRoute}/{from.ToString("MM-dd-yyyy")}/{to.ToString("MM/dd/yyyy")}";
 

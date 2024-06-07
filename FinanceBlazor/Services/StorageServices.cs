@@ -5,20 +5,25 @@ namespace FinanceBlazor.Services
     public class StorageServices
     {
         private static readonly HttpClient _httpClient = new HttpClient();
-        private static IConfiguration _configuration;
-        
-        private readonly string _controllerRoute = _configuration.GetValue<string>("BaseUrl") + "/storage";
+        private static IConfiguration _config;
+        private readonly string _controllerRoute;
+
+        public StorageServices(IConfiguration config)
+        {
+            _config = config;
+            _controllerRoute = _config.GetValue<string>("ServerUrl") + "/storage";
+        }
 
         public async Task CreateASync(StorageCreateDTO storageCreateDto)
         {
-            await _httpClient.PutAsJsonAsync(_controllerRoute, storageCreateDto);
+            await _httpClient.PostAsJsonAsync(_controllerRoute, storageCreateDto);
         }
 
         public async Task EditAsync(StorageUpdateDTO storageUpdateDto, int id)
         {
             var url = $"{_controllerRoute}/{id}";
 
-            await _httpClient.PostAsJsonAsync(url, storageUpdateDto);
+            await _httpClient.PutAsJsonAsync(url, storageUpdateDto);
         }
 
         public async Task DeleteAsync(int id)

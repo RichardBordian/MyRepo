@@ -1,4 +1,7 @@
 ﻿@page "/Transactions/edit/{id:int}"
+@inject TransactionServices transactionServices
+@inject StorageServices storageServices
+@inject CategoryServices categoryServices
 
 <PageTitle>Edit</PageTitle>
 <MudText>Edit @transactionInfo?.Name</MudText>
@@ -37,14 +40,11 @@
     List<StorageDTO>? storages = new List<StorageDTO>();
     List<CategoryDTO>? categories = new List<CategoryDTO>();
     private TransactionViewDTO? transactionInfo;
-    private readonly TransactionServices _transactionServices = new TransactionServices();
-    private readonly StorageServices _storageServices = new StorageServices();
-    private readonly CategoryServices _categoryServices = new CategoryServices();
     bool success;
 
     protected override async Task OnInitializedAsync()
     {
-        transactionInfo = await _transactionServices.GetByIdAsync(id);
+        transactionInfo = await transactionServices.GetByIdAsync(id);
         name = transactionInfo.Name;
         price = transactionInfo.Price;
         date = transactionInfo.Date;
@@ -52,13 +52,13 @@
         storageId = transactionInfo.Storage.Id;
         categoryId = transactionInfo.Category.Id;
 
-        storages = await _storageServices.GetAllAsync();
-        categories = await _categoryServices.GetAllAsync();
+        storages = await storageServices.GetAllAsync();
+        categories = await categoryServices.GetAllAsync();
     }
 
     private async void EditButtonClick()
     {
         var updateData = new TransactionUpdateDTO { Name = name, Price= price, Date = (DateTime)date, Description = description, CategoryId = categoryId, StorageId = storageId, Id = id};
-        await _transactionServices.EditAsync(updateData, id);
+        await transactionServices.EditAsync(updateData, id);
     }
 }

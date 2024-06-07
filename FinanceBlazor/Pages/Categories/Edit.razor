@@ -1,4 +1,5 @@
 ﻿@page "/categories/edit/{id:int}"
+@inject CategoryServices categoryServices
 
 <PageTitle>Edit</PageTitle>
 <MudText>Edit @categoryInfo?.Name</MudText>
@@ -18,12 +19,11 @@
     private string? description;
     private bool isIncome;
     private CategoryViewDTO? categoryInfo;
-    private readonly CategoryServices _categoryServices = new CategoryServices();
     bool success;
 
     protected override async Task OnInitializedAsync()
     {
-        categoryInfo = await _categoryServices.GetByIdAsync(id);
+        categoryInfo = await categoryServices.GetByIdAsync(id);
         name = categoryInfo?.Name;
         description = categoryInfo?.Description;
         isIncome = categoryInfo.IsIncome;
@@ -32,6 +32,6 @@
     private async void EditClick()
     {
         CategoryUpdateDTO categoryUpdateDto = new CategoryUpdateDTO() { Name = name, Description = description, IsIncome = isIncome, Id = id };
-        await _categoryServices.EditAsync(categoryUpdateDto, id);
+        await categoryServices.EditAsync(categoryUpdateDto, id);
     }
 }

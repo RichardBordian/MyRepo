@@ -1,4 +1,7 @@
 ﻿@page "/transactions/create"
+@inject TransactionServices transactionServices
+@inject StorageServices storageServices
+@inject CategoryServices categoryServices
 
 <PageTitle>Create</PageTitle>
 <MudText>Create transaction page</MudText>
@@ -35,21 +38,18 @@
     private DateTime? date = DateTime.Today;
     List<StorageDTO>? storages = new List<StorageDTO>();
     List<CategoryDTO>? categories = new List<CategoryDTO>();
-    private readonly TransactionServices _transactionServices = new TransactionServices();
-    private readonly StorageServices _storageServices = new StorageServices();
-    private readonly CategoryServices _categoryServices = new CategoryServices();
     bool success;
 
     protected override async Task OnInitializedAsync()
     {
-        storages = await _storageServices.GetAllAsync();
-        categories = await _categoryServices.GetAllAsync();
+        storages = await storageServices.GetAllAsync();
+        categories = await categoryServices.GetAllAsync();
     }
 
     private async void CreateButtonClick()
     {
         var createData = new TransactionCreateDTO() { Name = name, Description = description, Price = price, Date = (DateTime)date, StorageId = storageId, CategoryId = categoryId };
         var ran = createData;
-        await _transactionServices.CreateAsync(createData);
+        await transactionServices.CreateAsync(createData);
     }
 }

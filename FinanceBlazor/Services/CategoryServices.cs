@@ -5,19 +5,24 @@ namespace FinanceBlazor.Services
     public class CategoryServices
     {
         private static readonly HttpClient _httpClient = new HttpClient();
-        private static IConfiguration _configuration;
-        
-        private readonly string _controllerRoute = _configuration.GetValue<string>("BaseUrl") + "/category";
+        private static IConfiguration _config;
+        private readonly string _controllerRoute;
+
+        public CategoryServices(IConfiguration config)
+        {
+            _config = config;
+            _controllerRoute = _config.GetValue<string>("ServerUrl") + "/category";
+        }
 
         public async Task CreateAsync(CategoryCreateDTO categoryData)
         {
-            await _httpClient.PutAsJsonAsync(_controllerRoute, categoryData);
+            await _httpClient.PostAsJsonAsync(_controllerRoute, categoryData);
         }
 
         public async Task EditAsync(CategoryUpdateDTO categoryUpdateDTO, int id)
         {
             var url = $"{_controllerRoute}/{id}";
-            await _httpClient.PostAsJsonAsync(url, categoryUpdateDTO);
+            await _httpClient.PutAsJsonAsync(url, categoryUpdateDTO);
         }
 
         public async Task DeleteAsync(int id)

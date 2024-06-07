@@ -1,4 +1,5 @@
 ﻿@page "/create"
+@inject StorageServices storageServices
 
 <PageTitle>Create</PageTitle>
 <MudText>Create storage page</MudText>
@@ -14,13 +15,11 @@
 @code{
     private string name = "";
     private double value;
-    private readonly StorageServices _storageServices = new StorageServices();
-    
     bool success;
-
+    
     private async void CreateButtonClick()
     {
         var createData = new StorageCreateDTO() { Name = name, Value = value };
-        await _storageServices.CreateASync(createData);
+        await storageServices.CreateASync(createData);
     }
 }

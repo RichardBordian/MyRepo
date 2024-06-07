@@ -1,4 +1,5 @@
 ﻿@page "/categories/create"
+@inject CategoryServices categoryServices
 
 <PageTitle>Create</PageTitle>
 <MudText>Create categories page</MudText>
@@ -16,12 +17,11 @@
     private string _name = "";
     private string _description = "";
     private bool _isIncome;
-    private readonly CategoryServices _categoryServices = new CategoryServices();
     bool _success;
 
     private async void CreateButtonClick()
     {
         var createData = new CategoryCreateDTO() { Name = _name, Description = _description, IsIncome = _isIncome};
-        await _categoryServices.CreateAsync((createData));
+        await categoryServices.CreateAsync((createData));
     }
 }

@@ -1,4 +1,5 @@
 ﻿@page "/"
+@inject StorageServices storageServices
 
 <PageTitle>Storages</PageTitle>
 <MudText Typo="Typo.h3" Class="ml-3">Hi user!</MudText>
@@ -49,11 +50,10 @@
     private string? deleteRef;
     private string? detailsRef;
     private List<StorageDTO>? storages = new List<StorageDTO>();
-    private readonly StorageServices _storageServices = new StorageServices();
 
     protected override async Task OnInitializedAsync()
     {
-        storages = await _storageServices.GetAllAsync();
+        storages = await storageServices.GetAllAsync();
     }
     
     private void RowClickEvent(TableRowClickEventArgs<StorageDTO> tableRowClickEventArgs)

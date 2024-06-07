@@ -1,4 +1,5 @@
 ﻿@page "/transactions/delete/{id:int}"
+@inject TransactionServices transactionServices
 
 <PageTitle>Delete</PageTitle>
 <MudText Typo="Typo.h4">Are you realy want to delete @Name?</MudText>
@@ -9,16 +10,15 @@
     public int id { get; set; }
     private string? Name;
     private TransactionViewDTO? transactionInfo;
-    private readonly TransactionServices _transactionServices = new TransactionServices();
 
     protected override async Task OnInitializedAsync()
     {
-        transactionInfo = await _transactionServices.GetByIdAsync(id);
+        transactionInfo = await transactionServices.GetByIdAsync(id);
         Name = transactionInfo?.Name;
     }
 
     private async void DeleteClick()
     {
-        await _transactionServices.DeleteAsync(id);
+        await transactionServices.DeleteAsync(id);
     }
 }
