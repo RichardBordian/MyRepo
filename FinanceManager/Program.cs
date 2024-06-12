@@ -1,5 +1,4 @@
 using FinanceManager.Services;
-using FinanceManager.Controllers;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceManager
