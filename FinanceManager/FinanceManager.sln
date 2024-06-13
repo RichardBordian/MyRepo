@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34024.191
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinanceManager", "FinanceManager.csproj", "{A3187233-081D-41FB-AA8A-9E05AFDBC488}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FinanceManager", "FinanceManager.csproj", "{A3187233-081D-41FB-AA8A-9E05AFDBC488}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FinanceBlazor", "..\FinanceBlazor\FinanceBlazor.csproj", "{4312075C-8DBD-4467-A6A1-DB13BFAAE509}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinanceManager.common", "..\FinanceManager.common\FinanceManager.common.csproj", "{A9E803AA-225A-49F1-AD22-1683BC32E23B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{A3187233-081D-41FB-AA8A-9E05AFDBC488}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3187233-081D-41FB-AA8A-9E05AFDBC488}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A3187233-081D-41FB-AA8A-9E05AFDBC488}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4312075C-8DBD-4467-A6A1-DB13BFAAE509}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4312075C-8DBD-4467-A6A1-DB13BFAAE509}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4312075C-8DBD-4467-A6A1-DB13BFAAE509}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4312075C-8DBD-4467-A6A1-DB13BFAAE509}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9E803AA-225A-49F1-AD22-1683BC32E23B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9E803AA-225A-49F1-AD22-1683BC32E23B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9E803AA-225A-49F1-AD22-1683BC32E23B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9E803AA-225A-49F1-AD22-1683BC32E23B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

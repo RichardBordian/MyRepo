@@ -1,0 +1,24 @@
+﻿@page "/transactions/delete/{id:int}"
+@inject TransactionServices transactionServices
+
+<PageTitle>Delete</PageTitle>
+<MudText Typo="Typo.h4">Are you realy want to delete @Name?</MudText>
+<MudButton Href="/transactions" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" OnClick="DeleteClick">Delete</MudButton>
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+    private string? Name;
+    private TransactionViewDTO? transactionInfo;
+
+    protected override async Task OnInitializedAsync()
+    {
+        transactionInfo = await transactionServices.GetByIdAsync(id);
+        Name = transactionInfo?.Name;
+    }
+
+    private async void DeleteClick()
+    {
+        await transactionServices.DeleteAsync(id);
+    }
+}

@@ -1,4 +1,4 @@
-﻿using FinanceManager.DTO;
+﻿using FinanceManager.common.DTO;
 using FinanceManager.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,10 +13,10 @@ namespace FinanceManager.Services
 
         public CategoryServices(Context context) => _context = context;
 
-        public async Task<List<CategoriesDTO>> GetAllAsync()
+        public async Task<List<CategoryDTO>> GetAllAsync()
         {
             return await _context.Categories
-                .Select(x=> new CategoriesDTO() { Id = x.Id, Name = x.Name, IsIncome = x.IsIncome })
+                .Select(x=> new CategoryDTO() { Id = x.Id, Name = x.Name, IsIncome = x.IsIncome })
                 .ToListAsync();
         }
 
@@ -26,9 +26,22 @@ namespace FinanceManager.Services
             .Include(t => t.Transactions)
             .FirstOrDefaultAsync(c => c.Id == id);
 
+            var transactions = await _context.Transactions
+                .Where(x => x.CategoryId == id)
+                .Select(x => new TransactionByCategoryDTO()
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Date = x.Date,
+                    Storage = new StorageDTO() { Name = _context.Storages.FirstOrDefault(c => c.Id == x.StorageId).Name, Id = _context.Storages.FirstOrDefault(c => c.Id == x.StorageId).Id },
+                    Price = x.Price,
+                    Description = x.Description
+                })
+                .ToListAsync();
+
             return category == null
                 ? null
-                : new CategoryViewDTO() { Id = category.Id, Name = category.Name, Description = category.Description, transactions = category.Transactions };
+                : new CategoryViewDTO() { Id = category.Id, Name = category.Name, Description = category.Description, IsIncome = category.IsIncome, Transactions = transactions };
         }
 
         public async Task<bool> CreateAsync(CategoryCreateDTO categoryData)
@@ -41,6 +54,7 @@ namespace FinanceManager.Services
             var category = new Category()
             { 
                 Name = categoryData.Name, 
+                Description = categoryData.Description,
                 IsIncome = categoryData.IsIncome 
             };
 
@@ -64,13 +78,19 @@ namespace FinanceManager.Services
 
             var category = await _context.Categories.FirstAsync(x => x.Id == id);
 
-            if (!string.IsNullOrEmpty(categoryData.Name) & categoryData.Name != categoryData.Name)
+            if (!string.IsNullOrEmpty(categoryData.Name) & category.Name != categoryData.Name)
             {
                 category.Name = categoryData.Name;
             }
+
             if (categoryData.Description != null & category.Description != categoryData.Description)
             {
                 category.Description = categoryData.Description;
+            }
+
+            if (category.IsIncome != categoryData.IsIncome)
+            {
+                category.IsIncome = categoryData.IsIncome;
             }
 
             try
@@ -78,6 +98,7 @@ namespace FinanceManager.Services
                 _context.Update(category);
                 await _context.SaveChangesAsync();
             }
+
             catch (DbUpdateConcurrencyException)
             {
                 throw new Exception("Update exception");

@@ -1,11 +1,11 @@
-﻿namespace FinanceManager.DTO
+﻿namespace FinanceManager.common.DTO
 {
-    public class TransactionDTO
+    public class TransactionByStorageDTO
     {
+        public int Id { get; set; }
         public string? Name { get; set; }
         public DateTime Date { get; set; }
-        public int CategoryId { get; set; }
-        public int StorageId { get; set; }
+        public CategoryDTO Category { get; set; }
         public double Price { get; set; }
         public string? Description { get; set; }
     }

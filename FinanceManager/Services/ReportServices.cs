@@ -1,4 +1,4 @@
-﻿using FinanceManager.Models;
+﻿using FinanceManager.common.DTO;
 
 namespace FinanceManager.Services
 {
@@ -12,10 +12,20 @@ namespace FinanceManager.Services
 
         public ReportServices(Context context) => _context = context;
 
-        public Report DailyReport(DateTime date)
+        public ReportDTO DailyReport(DateTime date)
         {
             var transactions = _context.Transactions
                 .Where(x => x.Date.Date == date.Date)
+                .Select(x => new TransactionDTO()
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Date = x.Date,
+                    Category = new CategoryDTO() { Name = _context.Categories.FirstOrDefault(c => c.Id == x.CategoryId).Name, Id = _context.Categories.FirstOrDefault(c => c.Id == x.CategoryId).Id },
+                    Storage = new StorageDTO() { Name = _context.Storages.FirstOrDefault(c => c.Id == x.StorageId).Name, Id = _context.Storages.FirstOrDefault(c => c.Id == x.StorageId).Id },
+                    Price = x.Price,
+                    Description = x.Description
+                })
                 .ToList();
 
             double totalIncome = transactions
@@ -28,10 +38,14 @@ namespace FinanceManager.Services
                 .Select(x => x.Price)
                 .Sum();
 
-            return new Report { TotalExpences = totalExpences, TotalIncome = totalIncome, Transactions = transactions };
+            return new ReportDTO
+            { 
+                TotalExpenses = totalExpences, 
+                TotalIncome = totalIncome, 
+                Transactions = transactions };
         }
 
-        public Report PeriodReport(DateTime startDate, DateTime endDate)
+        public ReportDTO PeriodReport(DateTime startDate, DateTime endDate)
         {
             if(startDate > endDate)
             {
@@ -39,9 +53,19 @@ namespace FinanceManager.Services
             }
 
             var transactions = _context.Transactions
-                .Where(x => x.Date.Date > startDate && x.Date.Date < endDate)
+                .Where(x => x.Date.Date >= startDate && x.Date.Date <= endDate)
+                .Select(x => new TransactionDTO()
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Date = x.Date,
+                    Category = new CategoryDTO() { Name = _context.Categories.FirstOrDefault(c => c.Id == x.CategoryId).Name, Id = _context.Categories.FirstOrDefault(c => c.Id == x.CategoryId).Id },
+                    Storage = new StorageDTO() { Name = _context.Storages.FirstOrDefault(c => c.Id == x.StorageId).Name, Id = _context.Storages.FirstOrDefault(c => c.Id == x.StorageId).Id },
+                    Price = x.Price,
+                    Description = x.Description
+                })
                 .ToList();
-
+                
             double totalIncome = transactions
                 .Where(x => x.Price >= 0)
                 .Select(x => x.Price)
@@ -52,7 +76,7 @@ namespace FinanceManager.Services
                 .Select(x => x.Price)
                 .Sum();
 
-            return new Report { TotalExpences = totalExpences, TotalIncome = totalIncome, Transactions = transactions };
+            return new ReportDTO { TotalExpenses = totalExpences, TotalIncome = totalIncome, Transactions = transactions };
         }
     }
 }

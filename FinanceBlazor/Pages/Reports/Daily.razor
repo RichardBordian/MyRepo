@@ -1,0 +1,52 @@
+﻿@page "/reports/daily/{date:datetime}"
+@inject ReportServices reportServices
+
+<PageTitle> @date report</PageTitle>
+<MudText>it's a daily report for @date</MudText>
+<MudTh>Total income: @report?.TotalIncome</MudTh>
+<MudTh>Total excpences: @report?.TotalExpenses</MudTh>
+
+<MudTable T="TransactionDTO"
+          items="@report?.Transactions"
+          Hover="true"
+          Breakpoint="Breakpoint.Sm"
+          RowClass="cursor-pointer"
+          LoadingProgressColor="Color.Info"
+          OnRowClick="RowClickEvent">
+
+    <HeaderContent>
+        <MudTh>Name</MudTh>
+        <MudTh>Price</MudTh>
+        <MudTh>Date</MudTh>
+        <MudTh>Storage name</MudTh>
+        <MudTh>Description</MudTh>
+    </HeaderContent>
+
+    <RowTemplate>
+        <MudLink Href="@href" Underline="Underline.Always">
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+        </MudLink>
+        <MudTd DataLabel="Price">@context.Price</MudTd>
+        <MudTd DataLabel="Date">@context.Date.ToShortDateString()</MudTd>
+        <MudTd DataLabel="Storage name">@context.Storage.Name</MudTd>
+        <MudTd DataLabel="Description">@context.Description</MudTd>
+    </RowTemplate>
+    </MudTable>
+
+@code
+{
+    [Parameter]
+    public DateTime date { get; set; }
+    ReportDTO? report;
+    private string href;
+
+    protected override async Task OnInitializedAsync()
+    {
+        report = await reportServices.GetDailyAsync(date);
+    }
+
+    private void RowClickEvent(TableRowClickEventArgs<TransactionDTO> tableRowClickEventArgs)
+    {
+        href = "/transactions/details/" + tableRowClickEventArgs.Item.Id;
+    }
+}

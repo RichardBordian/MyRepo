@@ -1,4 +1,4 @@
-﻿using FinanceManager.DTO;
+﻿using FinanceManager.common.DTO;
 using FinanceManager.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,12 +16,12 @@ namespace FinanceManager.Controllers
         public StorageController(StorageServices storageServices) => _storageServices = storageServices;
 
         [HttpGet]
-        public async Task<List<StoragesDTO>> GetAllAsync()
+        public async Task<List<StorageDTO>> GetAllAsync()
         {
             return await _storageServices.GetAllAsync();
         }
 
-        [HttpGet("{Id}")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<StorageViewDTO>> GetByIdAsync([FromRoute] int id)
         {
             var storage = await _storageServices.GetAsync(id);
@@ -45,7 +45,7 @@ namespace FinanceManager.Controllers
             return Ok(storageData);
         }
 
-        [HttpPut]
+        [HttpPut("{id}")]
         public async Task<ActionResult<bool>> PutAsync([FromRoute] int id, [FromBody] StorageUpdateDTO storageData)
         {
             if (id != storageData.Id)

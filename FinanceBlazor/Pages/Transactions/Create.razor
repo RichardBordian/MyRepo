@@ -1,0 +1,55 @@
+﻿@page "/transactions/create"
+@inject TransactionServices transactionServices
+@inject StorageServices storageServices
+@inject CategoryServices categoryServices
+
+<PageTitle>Create</PageTitle>
+<MudText>Create transaction page</MudText>
+<MudForm @bind-IsValid="@success">
+    <MudTextField T="string" Label="Name" Required="true" RequiredError="Name is required!" @bind-value="name" />
+    <MudTextField T="double" Label="Price" Required="true" RequiredError="Price is required!" @bind-value="price" />
+    <MudDatePicker Label="Date" @bind-Date="date"/>
+    <MudTextField T="string" Label="Description" @bind-Value="description" />
+    <MudSelect T="int" @bind-value="storageId" Label="Storage" Required="true" RequiredError="storage is required!" AnchorOrigin="Origin.BottomCenter">
+        @foreach(var storage in storages)
+        {
+            <MudSelectItem T="int" value="@storage.Id"> @storage.Name</MudSelectItem>
+        }
+    </MudSelect>
+    <MudSelect T="int" @bind-value="categoryId" Label="Category" Required="true" RequiredError="category is required!" AnchorOrigin="Origin.BottomCenter">
+        @foreach(var category in categories)
+        {
+            <MudSelectItem T="int" value="@category.Id">@category.Name</MudSelectItem>
+        }
+    </MudSelect>
+    <div class="d-flex align-center justify-space-between">
+        <MudCheckBox T="bool" Required="true" RequiredError="You must agree!" Label="Agree" />
+        <MudButton Href="/" OnClick="CreateButtonClick" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)" Class="m1-auto">Create</MudButton>
+    </div>
+</MudForm>
+
+@code {
+    private string name = "";
+    private double price;
+    private string? description;
+    private bool isIncome;
+    private int storageId;
+    private int categoryId;
+    private DateTime? date = DateTime.Today;
+    List<StorageDTO>? storages = new List<StorageDTO>();
+    List<CategoryDTO>? categories = new List<CategoryDTO>();
+    bool success;
+
+    protected override async Task OnInitializedAsync()
+    {
+        storages = await storageServices.GetAllAsync();
+        categories = await categoryServices.GetAllAsync();
+    }
+
+    private async void CreateButtonClick()
+    {
+        var createData = new TransactionCreateDTO() { Name = name, Description = description, Price = price, Date = (DateTime)date, StorageId = storageId, CategoryId = categoryId };
+        var ran = createData;
+        await transactionServices.CreateAsync(createData);
+    }
+}

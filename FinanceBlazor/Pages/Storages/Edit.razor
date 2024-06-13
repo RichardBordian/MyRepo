@@ -1,0 +1,35 @@
+﻿@page "/edit/{id:int}"
+@inject StorageServices storageServices
+
+<PageTitle>Edit</PageTitle>
+<MudText>Edit @storageInfo?.Name</MudText>
+<MudForm @bind-IsValid="@success">
+    <MudTextField T="string" Label="Name" @bind-Value="name"/>
+    <MudTextField T="double" Label="Value" @bind-Value="value"/>
+    <div class="d-flex align-center justify-space-between">
+        <MudCheckBox T="bool" Required="true" RequiredError="You must agree!" Label="Agree" />
+        <MudButton Href="/" OnClick="EditClick" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)" Class="m1-auto">Edit</MudButton>
+    </div>
+</MudForm>
+
+@code{
+    [Parameter]
+    public int id { get; set; }
+    private string? name;
+    private double value;
+    private StorageViewDTO? storageInfo;
+    bool success;
+
+    protected override async Task OnInitializedAsync()
+    {
+        storageInfo = await storageServices.GetByIdAsync(id);
+        name = storageInfo?.Name;
+        value = storageInfo?.Value == null ? 0 : storageInfo.Value;
+    }
+
+    private async void EditClick()
+    {
+        StorageUpdateDTO storageUpdateDTO = new StorageUpdateDTO() { Name = name, Value = value, Id = id };
+        await storageServices.EditAsync(storageUpdateDTO, id);
+    }
+}

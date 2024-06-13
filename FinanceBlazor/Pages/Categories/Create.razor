@@ -1,0 +1,27 @@
+﻿@page "/categories/create"
+@inject CategoryServices categoryServices
+
+<PageTitle>Create</PageTitle>
+<MudText>Create categories page</MudText>
+<MudForm @bind-IsValid="@_success">
+    <MudTextField T="string" Label="Name" Required="true" RequiredError="Name is required!" @bind-value="_name" />
+    <MudTextField T="string" Label="Description" @bind-Value="_description" />
+    <MudSwitch @bind-Value="@_isIncome" Color="Color.Success" UnCheckedColor="Color.Error" Label="IsIncome" />
+    <div class="d-flex align-center justify-space-between">
+        <MudCheckBox T="bool" Required="true" RequiredError="You must agree!" Label="Agree" />
+        <MudButton Href="/" OnClick="CreateButtonClick" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!_success)" Class="m1-auto">Create</MudButton>
+    </div>
+</MudForm>
+
+@code {
+    private string _name = "";
+    private string _description = "";
+    private bool _isIncome;
+    bool _success;
+
+    private async void CreateButtonClick()
+    {
+        var createData = new CategoryCreateDTO() { Name = _name, Description = _description, IsIncome = _isIncome};
+        await categoryServices.CreateAsync((createData));
+    }
+}

@@ -1,4 +1,4 @@
-﻿using FinanceManager.DTO;
+﻿using FinanceManager.common.DTO;
 using FinanceManager.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,7 +22,7 @@ namespace FinanceManager.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<TransactionDTO>> GetByIdAsync([FromRoute] int id)
+        public async Task<ActionResult<TransactionViewDTO>> GetByIdAsync([FromRoute] int id)
         {
             var transaction = await _transactionServices.GetAsync(id);
 
@@ -45,7 +45,7 @@ namespace FinanceManager.Controllers
             return Ok(transactionData);
         }
 
-        [HttpPut]
+        [HttpPut("{id}")]
         public async Task<ActionResult<bool>> PutAsync([FromRoute]int id, [FromBody]TransactionUpdateDTO transactionData)
         {
             if(id != transactionData.Id)

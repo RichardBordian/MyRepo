@@ -1,5 +1,5 @@
-﻿using FinanceManager.DTO;
-using FinanceManager.Models;
+﻿using FinanceManager.Models;
+using FinanceManager.common.DTO;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceManager.Services
@@ -9,41 +9,67 @@ namespace FinanceManager.Services
         private readonly Context _context;
 
         private TransactionServices()
-        {}
+        { }
 
         public TransactionServices(Context context) => _context = context;
 
         public async Task<List<TransactionDTO>> GetAllAsync()
         {
             return await _context.Transactions
-                .Select(x=> new TransactionDTO() { Name = x.Name, Date = x.Date, CategoryId = x.CategoryId, StorageId = x.StorageId, Price= x.Price, Description = x.Descrpition  })
+                .Select(x => new TransactionDTO()
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Date = x.Date,
+                    Category = new CategoryDTO() { Name = _context.Categories.FirstOrDefault(c => c.Id == x.CategoryId).Name, Id = _context.Categories.FirstOrDefault(c => c.Id == x.CategoryId).Id },
+                    Storage = new StorageDTO() { Name = _context.Storages.FirstOrDefault(c => c.Id == x.StorageId).Name, Id = _context.Storages.FirstOrDefault(c => c.Id == x.StorageId).Id },
+                    Price = x.Price,
+                    Description = x.Description
+                })
                 .ToListAsync();
         }
 
-        public async Task<TransactionDTO?> GetAsync(int id)
+        public async Task<TransactionViewDTO?> GetAsync(int id)
         {
             var transaction = await _context.Transactions
                 .FirstOrDefaultAsync(x => x.Id == id);
 
-            return transaction == null
-                    ? null
-                    : new TransactionDTO() { Name = transaction.Name, Date = transaction.Date, CategoryId = transaction.CategoryId, StorageId = transaction.StorageId, Price = transaction.Price, Description = transaction.Descrpition };
+            if (transaction == null)
+            {
+                return null;
+            }
+
+            var storage = await _context.Storages
+                .FirstOrDefaultAsync(x => x.Id == transaction.StorageId);
+
+            var category = await _context.Categories
+                .FirstOrDefaultAsync(x => x.Id == transaction.CategoryId);
+
+            return new TransactionViewDTO()
+            {
+                Name = transaction.Name,
+                Date = transaction.Date,
+                Category = new CategoryDTO() { Name = category?.Name, Id = category.Id},
+                Storage = new StorageDTO() { Name = storage?.Name, Id = storage.Id},
+                Price = transaction.Price,
+                Description = transaction.Description
+            };
         }
 
         public async Task<bool> CreateAsync(TransactionCreateDTO transactionData)
         {
-            if(!IsValid(transactionData)) 
+            if (!IsValid(transactionData))
             {
                 return false;
             }
 
-            var transaction = new Transaction() 
+            var transaction = new Transaction()
             {
-                Name =  transactionData.Name, 
-                Date = transactionData.Date, 
+                Name = transactionData.Name,
+                Date = transactionData.Date,
                 CategoryId = transactionData.CategoryId,
                 Price = transactionData.Price,
-                Descrpition = transactionData.Description,
+                Description = transactionData.Description,
                 StorageId = transactionData.StorageId,
             };
 
@@ -71,22 +97,27 @@ namespace FinanceManager.Services
             {
                 transaction.Name = transactionData.Name;
             }
+
             if (transactionData.Date != transaction.Date)
             {
                 transaction.Date = transactionData.Date;
             }
+            
             if (transactionData.CategoryId != transaction.CategoryId)
             {
                 transaction.CategoryId = transactionData.CategoryId;
             }
+            
             if (transactionData.Price != transaction.Price)
             {
                 transaction.Price = transactionData.Price;
             }
-            if (transactionData.Descrpition != null & transactionData.Descrpition != transaction.Descrpition)
+            
+            if (transactionData.Description != null & transactionData.Description != transaction.Description)
             {
-                transaction.Descrpition = transactionData.Descrpition;
+                transaction.Description = transactionData.Description;
             }
+            
             if (transactionData.StorageId != transaction.StorageId)
             {
                 transaction.StorageId = transactionData.StorageId;
@@ -109,9 +140,9 @@ namespace FinanceManager.Services
         public async Task<bool> DeleteAsync(int id)
         {
             var transaction = await _context.Transactions
-                .FirstOrDefaultAsync(t=> t.Id == id);
+                .FirstOrDefaultAsync(t => t.Id == id);
 
-            if(transaction is null)
+            if (transaction is null)
             {
                 return false;
             }
@@ -124,7 +155,7 @@ namespace FinanceManager.Services
 
         private bool IsValid(TransactionCreateDTO transactionData)
         {
-            if (transactionData.Name == null & _context.Transactions.FirstOrDefault(t=> t.Name == transactionData.Name) != null)
+            if (transactionData.Name == null & _context.Transactions.FirstOrDefault(t => t.Name == transactionData.Name) != null)
             {
                 return false;
             }

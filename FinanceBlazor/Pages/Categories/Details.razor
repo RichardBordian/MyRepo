@@ -1,0 +1,53 @@
+﻿@page "/categories/details/{id:int}"
+@inject CategoryServices categoryServices
+
+<PageTitle>Details</PageTitle>
+<MudText Typo="Typo.h3" Class="ml-3">Name: @categoryInfo?.Name</MudText>
+<MudText Typo="Typo.h4" Class="ml-3">Descriptions: @categoryInfo?.Description</MudText>
+<MudText Typo="Typo.h5" Class="ml-3">Transactions list</MudText>
+
+<MudTable T="TransactionByCategoryDTO"
+          items="@categoryInfo?.Transactions"
+          Hover="true"
+          Breakpoint="Breakpoint.Sm"
+          RowClass="cursor-pointer"
+          LoadingProgressColor="Color.Info"
+          OnRowClick="RowClickEvent">
+
+    <HeaderContent>
+        <MudTh>Name</MudTh>
+        <MudTh>Price</MudTh>
+        <MudTh>Date</MudTh>
+        <MudTh>Storage name</MudTh>
+        <MudTh>Description</MudTh>
+    </HeaderContent>
+
+    <RowTemplate>
+        <MudLink Href="@href" Underline="Underline.Always">
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+        </MudLink>
+        <MudTd DataLabel="Price">@context.Price</MudTd>
+        <MudTd DataLabel="Date">@context.Date.ToShortDateString()</MudTd>
+        <MudTd DataLabel="Storage name">@context.Storage.Name</MudTd>
+        <MudTd DataLabel="Description">@context.Description</MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code
+{
+    [Parameter]
+    public int Id { get; set; }
+    CategoryViewDTO? categoryInfo;
+    static HttpClient _httpClient = new HttpClient();
+    string? href;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        categoryInfo = await categoryServices.GetByIdAsync(Id);
+    }
+
+    private void RowClickEvent(TableRowClickEventArgs<TransactionByCategoryDTO> tableRowClickEventArgs)
+    {
+        href = "/transactions/details/" + tableRowClickEventArgs.Item.Id;
+    }
+}

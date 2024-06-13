@@ -1,0 +1,53 @@
+﻿@page "/details/{id:int}"
+@inject StorageServices storageServices
+
+<PageTitle>Details</PageTitle>
+<MudText Typo="Typo.h3" Class="ml-3">Name: @storageInfo?.Name</MudText>
+<MudText Typo="Typo.h4" Class="ml-3">Value: @storageInfo?.Value</MudText>
+<MudText Typo="Typo.h5" Class="ml-3">Transactions list</MudText>
+
+<MudTable
+    T="TransactionByStorageDTO"
+    items ="@storageInfo?.Transactions"
+    Hover="true"
+    Breakpoint="Breakpoint.Sm"
+    RowClass="cursor-pointer"
+    LoadingProgressColor="Color.Info"
+    OnRowClick="RowClickEvent">
+
+    <HeaderContent>
+        <MudTh>Name</MudTh>
+        <MudTh>Price</MudTh>
+        <MudTh>Date</MudTh>
+        <MudTh>Category name</MudTh>
+        <MudTh>Description</MudTh>
+    </HeaderContent>
+
+    <RowTemplate>
+        <MudLink Href="@href" Underline="Underline.Always">
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+        </MudLink>
+        <MudTd DataLabel="Price">@context.Price</MudTd>
+        <MudTd DataLabel="Date">@context.Date.ToShortDateString()</MudTd>
+        <MudTd DataLabel="Category name">@context.Category.Name</MudTd>
+        <MudTd DataLabel="Description">@context.Description</MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code
+{
+    [Parameter]
+    public int id { get; set; }
+    StorageViewDTO? storageInfo;
+    string? href;
+
+    protected override async Task OnInitializedAsync()
+    {
+        storageInfo = await storageServices.GetByIdAsync(id);
+    }
+
+    private void RowClickEvent(TableRowClickEventArgs<TransactionByStorageDTO> tableRowClickEventArgs)
+    {
+        href = "/transactions/details/" + tableRowClickEventArgs.Item.Id;
+    }
+}

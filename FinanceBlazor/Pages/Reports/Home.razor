@@ -1,0 +1,19 @@
+﻿@page "/reports"
+
+<PageTitle>Reports</PageTitle>
+<MudText>Chose report what you want to take:</MudText>
+
+<MudStack Row="true" Justify="Justify.FlexStart">
+    <MudButton Href="/reports/daily" Variant="Variant.Filled" Color="Color.Default" Class="m1-auto">Daily</MudButton>
+    <MudButton Href="/reports/period" Variant="Variant.Filled" Color="Color.Primary" Class="m1-auto">Period</MudButton>
+</MudStack>
+
+
+@code{
+    private bool isPeriod = false;
+    private DateTime? startDate;
+    private DateTime? endDate;
+    private DateRange? dateRange;
+    private bool agree = false;
+    private string href;
+}

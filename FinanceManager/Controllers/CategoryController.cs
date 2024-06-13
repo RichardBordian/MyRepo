@@ -1,4 +1,4 @@
-﻿using FinanceManager.DTO;
+﻿using FinanceManager.common.DTO;
 using FinanceManager.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,7 +16,7 @@ namespace FinanceManager.Controllers
         public CategoryController(CategoryServices categoryServices) => _categoryServices = categoryServices;
 
         [HttpGet]
-        public async Task<List<CategoriesDTO>> GetAllAsync()
+        public async Task<List<CategoryDTO>> GetAllAsync()
         {
             return await _categoryServices.GetAllAsync();
         }
@@ -45,7 +45,7 @@ namespace FinanceManager.Controllers
             return Ok(categoryData);
         }
 
-        [HttpPut]
+        [HttpPut("{id}")]
         public async Task<ActionResult<bool>> PutAsync([FromRoute] int id, [FromBody] CategoryUpdateDTO categoryData)
         {
             if (id != categoryData.Id)

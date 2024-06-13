@@ -1,0 +1,60 @@
+﻿@page "/categories/"
+@inject CategoryServices categoryServices
+
+<PageTitle>Categories</PageTitle>
+
+<MudGrid Justify="Justify.SpaceAround">
+    <MudItem>
+        <MudText Typo="Typo.h2">Category list:</MudText>
+    </MudItem>
+    <MudItem>
+        <MudText Typo="Typo.h2">
+            <MudLink Href="categories/create" Underline="Underline.Always">
+                Create
+            </MudLink>
+        </MudText>
+    </MudItem>
+</MudGrid>
+
+<MudTable
+    T="CategoryDTO"
+    Items="@categories"
+    Hover="true"
+    Breakpoint="Breakpoint.Sm"
+    RowClass="cursor-pointer"
+    LoadingProgressColor="Color.Info"
+    OnRowClick="RowClickEvent">
+    
+    <HeaderContent>
+        <MudTh>Name</MudTh>
+    </HeaderContent>
+
+<RowTemplate>
+    <MudLink Href="@detailsRef" Underline="Underline.Always">
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+    </MudLink>
+
+    <MudLink Href="@editRef">Edit</MudLink> | 
+    <MudLink Href="@deleteRef">Delete</MudLink>
+</RowTemplate>
+</MudTable>
+
+@code{
+    private string? editRef;
+    private string? deleteRef;
+    private string? detailsRef;
+    private List<CategoryDTO>? categories = new List<CategoryDTO>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await categoryServices.GetAllAsync();
+    }
+
+    private void RowClickEvent(TableRowClickEventArgs<CategoryDTO> tableRowClickEventArgs)
+    {
+        detailsRef = "categories/details/" + tableRowClickEventArgs.Item.Id;
+        editRef = "categories/edit/" + tableRowClickEventArgs.Item.Id;
+        deleteRef = "categories/delete/" + tableRowClickEventArgs.Item.Id;
+    }
+}
+

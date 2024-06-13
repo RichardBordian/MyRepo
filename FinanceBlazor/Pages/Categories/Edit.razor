@@ -1,0 +1,37 @@
+﻿@page "/categories/edit/{id:int}"
+@inject CategoryServices categoryServices
+
+<PageTitle>Edit</PageTitle>
+<MudText>Edit @categoryInfo?.Name</MudText>
+<MudForm @bind-IsValid="@success">
+    <MudTextField T="string" Label="Name" @bind-Value="name" />
+    <MudTextField T="string" Label="Description" @bind-Value="description" />
+    <div class="d-flex align-center justify-space-between">
+        <MudSwitch @bind-Value="@isIncome" Color="Color.Success" UnCheckedColor="Color.Error" Label="IsIncome"/>
+        <MudButton Href="/categories/" OnClick="EditClick" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)" Class="m1-auto">Edit</MudButton>
+    </div>
+</MudForm>
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+    private string? name;
+    private string? description;
+    private bool isIncome;
+    private CategoryViewDTO? categoryInfo;
+    bool success;
+
+    protected override async Task OnInitializedAsync()
+    {
+        categoryInfo = await categoryServices.GetByIdAsync(id);
+        name = categoryInfo?.Name;
+        description = categoryInfo?.Description;
+        isIncome = categoryInfo.IsIncome;
+    }
+
+    private async void EditClick()
+    {
+        CategoryUpdateDTO categoryUpdateDto = new CategoryUpdateDTO() { Name = name, Description = description, IsIncome = isIncome, Id = id };
+        await categoryServices.EditAsync(categoryUpdateDto, id);
+    }
+}

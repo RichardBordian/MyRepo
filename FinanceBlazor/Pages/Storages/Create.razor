@@ -1,0 +1,25 @@
+﻿@page "/create"
+@inject StorageServices storageServices
+
+<PageTitle>Create</PageTitle>
+<MudText>Create storage page</MudText>
+<MudForm @bind-IsValid="@success">
+    <MudTextField T="string" Label="Name" Required="true" RequiredError="Name is required!" @bind-value="name"/>
+    <MudTextField T="double" Label="Value" @bind-Value="value"/>
+    <div class="d-flex align-center justify-space-between">
+        <MudCheckBox T="bool" Required="true" RequiredError="You must agree!" Label="Agree" />
+        <MudButton Href="/" OnClick="CreateButtonClick" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)" Class="m1-auto">Create</MudButton>
+    </div>
+</MudForm>
+
+@code{
+    private string name = "";
+    private double value;
+    bool success;
+    
+    private async void CreateButtonClick()
+    {
+        var createData = new StorageCreateDTO() { Name = name, Value = value };
+        await storageServices.CreateASync(createData);
+    }
+}

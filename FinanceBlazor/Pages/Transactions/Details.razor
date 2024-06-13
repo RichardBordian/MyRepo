@@ -1,0 +1,23 @@
+﻿@page "/transactions/details/{id:int}"
+@inject TransactionServices transactionServices
+
+<PageTitle>Details</PageTitle>
+
+<MudTh>Name: @transaction?.Name</MudTh>
+<MudTh>Price: @transaction?.Price</MudTh>
+<MudTh>Date: @transaction?.Date.ToShortDateString()</MudTh>
+<MudTh>Storage: @transaction?.Storage.Name</MudTh>
+<MudTh>Category: @transaction?.Category.Name</MudTh>
+<MudTh>Description: @transaction?.Description</MudTh>
+
+@code
+{
+    [Parameter]
+    public int id { get; set; }
+    TransactionViewDTO? transaction;
+
+    protected override async Task OnInitializedAsync()
+    {
+        transaction = await transactionServices.GetByIdAsync(id);
+    }
+}
