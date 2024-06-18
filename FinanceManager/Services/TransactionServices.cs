@@ -1,56 +1,51 @@
 ﻿using FinanceManager.Models;
 using FinanceManager.common.DTO;
-using Microsoft.EntityFrameworkCore;
+using FinanceManager.Repositories;
 
 namespace FinanceManager.Services
 {
     public class TransactionServices
     {
-        private readonly Context _context;
+        private readonly TransactionRepository _transactionRepository;
 
         private TransactionServices()
         { }
 
-        public TransactionServices(Context context) => _context = context;
+        public TransactionServices(TransactionRepository transactionRepository) => _transactionRepository = transactionRepository;
 
         public async Task<List<TransactionDTO>> GetAllAsync()
         {
-            return await _context.Transactions
+            var transactions = await _transactionRepository.GetAllAsync();
+
+            return transactions
                 .Select(x => new TransactionDTO()
                 {
                     Id = x.Id,
                     Name = x.Name,
                     Date = x.Date,
-                    Category = new CategoryDTO() { Name = _context.Categories.FirstOrDefault(c => c.Id == x.CategoryId).Name, Id = _context.Categories.FirstOrDefault(c => c.Id == x.CategoryId).Id },
-                    Storage = new StorageDTO() { Name = _context.Storages.FirstOrDefault(c => c.Id == x.StorageId).Name, Id = _context.Storages.FirstOrDefault(c => c.Id == x.StorageId).Id },
+                    Category = new CategoryDTO() { Name = x.Category.Name, Id = x.Category.Id },
+                    Storage = new StorageDTO() { Name = x.Storage.Name, Id = x.Storage.Id },
                     Price = x.Price,
-                    Description = x.Description
+                    Description = x.Description,
                 })
-                .ToListAsync();
+                .ToList();
         }
 
         public async Task<TransactionViewDTO?> GetAsync(int id)
         {
-            var transaction = await _context.Transactions
-                .FirstOrDefaultAsync(x => x.Id == id);
+            var transaction = await _transactionRepository.GetByIdAsync(id);
 
             if (transaction == null)
             {
                 return null;
             }
 
-            var storage = await _context.Storages
-                .FirstOrDefaultAsync(x => x.Id == transaction.StorageId);
-
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(x => x.Id == transaction.CategoryId);
-
             return new TransactionViewDTO()
             {
                 Name = transaction.Name,
                 Date = transaction.Date,
-                Category = new CategoryDTO() { Name = category?.Name, Id = category.Id},
-                Storage = new StorageDTO() { Name = storage?.Name, Id = storage.Id},
+                Category = new CategoryDTO() { Name = transaction.Category.Name, Id = transaction.Category.Id},
+                Storage = new StorageDTO() { Name = transaction.Storage.Name, Id = transaction.Storage.Id},
                 Price = transaction.Price,
                 Description = transaction.Description
             };
@@ -58,11 +53,6 @@ namespace FinanceManager.Services
 
         public async Task<bool> CreateAsync(TransactionCreateDTO transactionData)
         {
-            if (!IsValid(transactionData))
-            {
-                return false;
-            }
-
             var transaction = new Transaction()
             {
                 Name = transactionData.Name,
@@ -73,10 +63,7 @@ namespace FinanceManager.Services
                 StorageId = transactionData.StorageId,
             };
 
-            await _context.Transactions.AddAsync(transaction);
-            await _context.SaveChangesAsync();
-
-            return true;
+            return await _transactionRepository.CreateAsync(transaction);
         }
 
         public async Task<bool> EditAsync(int id, TransactionUpdateDTO transactionData)
@@ -86,80 +73,39 @@ namespace FinanceManager.Services
                 return false;
             }
 
-            if (!_context.Transactions.Any(x => x.Id == transactionData.Id))
+            var transaction = new Transaction()
             {
-                return false;
-            }
-
-            var transaction = await _context.Transactions.FirstAsync(x => x.Id == id);
-
-            if (!string.IsNullOrEmpty(transactionData.Name) & transactionData.Name != transaction.Name)
-            {
-                transaction.Name = transactionData.Name;
-            }
-
-            if (transactionData.Date != transaction.Date)
-            {
-                transaction.Date = transactionData.Date;
-            }
-            
-            if (transactionData.CategoryId != transaction.CategoryId)
-            {
-                transaction.CategoryId = transactionData.CategoryId;
-            }
-            
-            if (transactionData.Price != transaction.Price)
-            {
-                transaction.Price = transactionData.Price;
-            }
-            
-            if (transactionData.Description != null & transactionData.Description != transaction.Description)
-            {
-                transaction.Description = transactionData.Description;
-            }
-            
-            if (transactionData.StorageId != transaction.StorageId)
-            {
-                transaction.StorageId = transactionData.StorageId;
-            }
+                Name = transactionData.Name == null ? "" : transactionData.Name,
+                Date = transactionData.Date,
+                CategoryId = transactionData.CategoryId,
+                Price = transactionData.Price,
+                Description = transactionData.Description,
+                StorageId = transactionData.StorageId,
+            };
 
             try
             {
-                _context.Update(transaction);
-                await _context.SaveChangesAsync();
+                await _transactionRepository.EditAsync(transaction);
+                return true;
             }
-
-            catch (DbUpdateConcurrencyException)
+            catch
             {
-                throw new Exception("Update exception");
+                return false;
             }
-
-            return true;
         }
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var transaction = await _context.Transactions
-                .FirstOrDefaultAsync(t => t.Id == id);
-
-            if (transaction is null)
+            try
+            {
+                await _transactionRepository.DeleteAsync(id);
+                return true;
+            }
+            catch
             {
                 return false;
             }
-
-            _context.Remove(transaction);
-            await _context.SaveChangesAsync();
-
-            return true;
         }
 
-        private bool IsValid(TransactionCreateDTO transactionData)
-        {
-            if (transactionData.Name == null & _context.Transactions.FirstOrDefault(t => t.Name == transactionData.Name) != null)
-            {
-                return false;
-            }
-            return true;
-        }
     }
 }

@@ -1,68 +1,63 @@
-﻿using FinanceManager.common.DTO;
-using FinanceManager.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using FinanceManager.Models;
+using FinanceManager.common.DTO;
+using FinanceManager.Repositories;
 
 namespace FinanceManager.Services
 {
     public class StorageServices
     {
-        private readonly Context _context;
+        private readonly StorageRepository _storageRepository;
 
         private StorageServices()
         {
 
         }
 
-        public StorageServices(Context context) => _context = context;
+        public StorageServices(StorageRepository storageRepository) => _storageRepository = storageRepository;
 
         public async Task<List<StorageDTO>> GetAllAsync()
         {
-            return await _context.Storages
+            var storages = await _storageRepository.GetAllAsync();
+
+            return storages
                 .Select(x => new StorageDTO() { Id = x.Id, Name = x.Name, Value = x.Value })
-                .ToListAsync();
+                .ToList();
         }
 
         public async Task<StorageViewDTO?> GetAsync(int id)
         {
-            var storage = await _context.Storages
-                .Include(t => t.Transactions)
-                .FirstOrDefaultAsync(x => x.Id == id);
+            var storage = await _storageRepository.GetByIdAsync(id);
+            if (storage is null)
+            {
+                return null;
+            }
 
-            var transactions = await _context.Transactions
-                    .Where(x => x.StorageId == id)
-                    .Select(x => new TransactionByStorageDTO()
-                    {
-                        Id = x.Id,
-                        Name = x.Name,
-                        Date = x.Date,
-                        Category = new CategoryDTO() { Name = _context.Categories.FirstOrDefault(c => c.Id == x.CategoryId).Name, Id = _context.Categories.FirstOrDefault(c => c.Id == x.CategoryId).Id },
-                        Price = x.Price,
-                        Description = x.Description
-                    })
-                    .ToListAsync();
+            var transactions = storage.Transactions;
 
-            return storage == null
-                ? null
-                : new StorageViewDTO() { Name = storage.Name, Value = storage.Value, Transactions = transactions };
+            var operations = transactions?
+                .Select(x => new TransactionByStorageDTO()
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Date = x.Date,
+                    Category = new CategoryDTO() { Name = x.Category.Name, Id = x.Category.Id, IsIncome = x.Category.IsIncome },
+                    Price = x.Price,
+                    Description = x.Description
+                })
+                .ToList();
+
+            return new StorageViewDTO() { Name = storage.Name, Value = storage.Value, Transactions = operations };
         }
 
         public async Task<bool> CreateAsync(StorageCreateDTO storageData)
         {
-            if (!IsValid(storageData))
-            {
-                return false;
-            }
-
             var storage = new Storage()
             {
                 Name = storageData.Name,
                 Value = storageData.Value
             };
 
-            await _context.Storages.AddAsync(storage);
-            await _context.SaveChangesAsync();
-
-            return true;
+            return await _storageRepository.CreateAsync(storage);
         }
 
         public async Task<bool> EditAsync(int id, StorageUpdateDTO storageData)
@@ -72,74 +67,35 @@ namespace FinanceManager.Services
                 return false;
             }
 
-            if (!_context.Storages.Any(x => x.Id == id))
+            var storage = new Storage()
             {
-                return false;
-            }
-
-            var storage = await _context.Storages.FirstAsync(x => x.Id == id);
-
-            if (!string.IsNullOrEmpty(storageData.Name) & storage.Name != storageData.Name)
-            {
-                storage.Name = storageData.Name;
-            }
-
-            if (storage.Value != storageData.Value)
-            {
-                TransactionServices transactionServices = new TransactionServices(_context);
-                await transactionServices.CreateAsync(new TransactionCreateDTO()
-                {
-                    Name = "correcting",
-                    Date = DateTime.Now,
-                    Price = storage.Value > storageData.Value ? storage.Value - storageData.Value : storageData.Value - storage.Value,
-                    StorageId = storageData.Id,
-                    CategoryId = 1,
-                    Description = null
-                });
-            }
+                Id = storageData.Id,
+                Name = storageData.Name == null ? "" : storageData.Name,
+                Value = storageData.Value,
+            };
 
             try
             {
-                _context.Update(storage);
-                await _context.SaveChangesAsync();
+                await _storageRepository.EditAsync(storage);
+                return true;
             }
-            catch (DbUpdateConcurrencyException)
+            catch
             {
-                throw new Exception("Update exception");
+                return false;
             }
-
-            return true;
         }
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var storage = await _context.Storages
-                .Include(t => t.Transactions)
-                .FirstOrDefaultAsync(s => s.Id == id);
-
-            if (storage == null)
+            try
+            {
+                await _storageRepository.DeleteAsync(id);
+                return true;
+            }
+            catch
             {
                 return false;
             }
-
-            if (storage.Transactions.Count > 0)
-            {
-                throw new Exception("This storage contain transactions");
-            }
-
-            _context.Storages.Remove(storage);
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
-        private bool IsValid(StorageCreateDTO storageData)
-        {
-            if (storageData.Name == null & _context.Storages.FirstOrDefault(s => s.Name == storageData.Name) != null)
-            {
-                return false;
-            }
-
-            return true;
         }
     }
 }
