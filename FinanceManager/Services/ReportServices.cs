@@ -1,28 +1,27 @@
 ﻿using FinanceManager.common.DTO;
+using FinanceManager.Repositories;
 
 namespace FinanceManager.Services
 {
     public class ReportServices
     {
-        private readonly Context _context;
-        private ReportServices()
-        {
+        private readonly ReportRepository _reportRepository;
+        private ReportServices() { }
 
-        }
-
-        public ReportServices(Context context) => _context = context;
+        public ReportServices(ReportRepository reportRepository) => _reportRepository = reportRepository;
 
         public ReportDTO DailyReport(DateTime date)
         {
-            var transactions = _context.Transactions
-                .Where(x => x.Date.Date == date.Date)
+            var operations = _reportRepository.GetDaily(date);
+
+            var transactions = operations
                 .Select(x => new TransactionDTO()
                 {
                     Id = x.Id,
                     Name = x.Name,
                     Date = x.Date,
-                    Category = new CategoryDTO() { Name = _context.Categories.FirstOrDefault(c => c.Id == x.CategoryId).Name, Id = _context.Categories.FirstOrDefault(c => c.Id == x.CategoryId).Id },
-                    Storage = new StorageDTO() { Name = _context.Storages.FirstOrDefault(c => c.Id == x.StorageId).Name, Id = _context.Storages.FirstOrDefault(c => c.Id == x.StorageId).Id },
+                    Category = new CategoryDTO() { Name = x.Category.Name, Id = x.Category.Id },
+                    Storage = new StorageDTO() { Name = x.Storage.Name, Id = x.Storage.Id },
                     Price = x.Price,
                     Description = x.Description
                 })
@@ -52,15 +51,16 @@ namespace FinanceManager.Services
                 throw new Exception("End date must be bigger than start date");
             }
 
-            var transactions = _context.Transactions
-                .Where(x => x.Date.Date >= startDate && x.Date.Date <= endDate)
+            var operations = _reportRepository.GetPeriod(startDate, endDate);
+
+            var transactions = operations
                 .Select(x => new TransactionDTO()
                 {
                     Id = x.Id,
                     Name = x.Name,
                     Date = x.Date,
-                    Category = new CategoryDTO() { Name = _context.Categories.FirstOrDefault(c => c.Id == x.CategoryId).Name, Id = _context.Categories.FirstOrDefault(c => c.Id == x.CategoryId).Id },
-                    Storage = new StorageDTO() { Name = _context.Storages.FirstOrDefault(c => c.Id == x.StorageId).Name, Id = _context.Storages.FirstOrDefault(c => c.Id == x.StorageId).Id },
+                    Category = new CategoryDTO() { Name = x.Category.Name, Id = x.Category.Id},
+                    Storage = new StorageDTO() { Name = x.Storage.Name, Id = x.Storage.Id },
                     Price = x.Price,
                     Description = x.Description
                 })

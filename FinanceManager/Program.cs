@@ -1,3 +1,4 @@
+using FinanceManager.Repositories;
 using FinanceManager.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,9 +14,16 @@ namespace FinanceManager
 
             builder.Services.AddDbContext<Context>(options => options.UseSqlServer(connection));
 
+            builder.Services.AddScoped<StorageRepository>();
             builder.Services.AddScoped<StorageServices>();
+
+            builder.Services.AddScoped<CategoryRepository>();
             builder.Services.AddScoped<CategoryServices>();
+
+            builder.Services.AddScoped<ReportRepository>();
             builder.Services.AddScoped<ReportServices>();
+
+            builder.Services.AddScoped<TransactionRepository>();
             builder.Services.AddScoped<TransactionServices>();
 
             builder.Services.AddControllers();
