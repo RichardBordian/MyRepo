@@ -1,3 +1,7 @@
+using FinanceManager.Interfaces;
+using FinanceManager.Interfaces.Services;
+using FinanceManager.Models;
+using FinanceManager.Repos;
 using FinanceManager.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,11 +17,13 @@ namespace FinanceManager
 
             builder.Services.AddDbContext<Context>(options => options.UseSqlServer(connection));
 
-            builder.Services.AddScoped<StorageServices>();
-            builder.Services.AddScoped<CategoryServices>();
-            builder.Services.AddScoped<ReportServices>();
-            builder.Services.AddScoped<TransactionServices>();
-
+            builder.Services.AddScoped<IStorageServices, StorageServices>();
+            builder.Services.AddScoped<ICategorySerivces, CategoryServices>();
+            builder.Services.AddScoped<ITransactionServices, TransactionServices>();
+            builder.Services.AddScoped<IRepo<Transaction>, TransactionRepo>();
+            builder.Services.AddScoped<IRepo<Category>, CategoryRepo>();
+            builder.Services.AddScoped<IRepo<Storage>, StorageRepo>();
+            builder.Services.AddScoped<IReportService, ReportServices>();
             builder.Services.AddControllers();
 
             builder.Services.AddEndpointsApiExplorer();
@@ -36,7 +42,7 @@ namespace FinanceManager
 
             app.UseAuthorization();
 
-            
+
             app.MapControllers();
 
             app.Run();

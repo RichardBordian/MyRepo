@@ -1,56 +1,40 @@
 ﻿using FinanceManager.Models;
 using FinanceManager.common.DTO;
+using FinanceManager.Interfaces;
+using FinanceManager.Interfaces.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceManager.Services
 {
-    public class TransactionServices
+    public class TransactionServices(IRepo<Transaction> transactionRepo) : ITransactionServices
     {
-        private readonly Context _context;
-
-        private TransactionServices()
-        { }
-
-        public TransactionServices(Context context) => _context = context;
-
         public async Task<List<TransactionDTO>> GetAllAsync()
         {
-            return await _context.Transactions
+            var transactions = await transactionRepo.GetAllAsync();
+            return transactions
                 .Select(x => new TransactionDTO()
                 {
                     Id = x.Id,
                     Name = x.Name,
                     Date = x.Date,
-                    Category = new CategoryDTO() { Name = _context.Categories.FirstOrDefault(c => c.Id == x.CategoryId).Name, Id = _context.Categories.FirstOrDefault(c => c.Id == x.CategoryId).Id },
-                    Storage = new StorageDTO() { Name = _context.Storages.FirstOrDefault(c => c.Id == x.StorageId).Name, Id = _context.Storages.FirstOrDefault(c => c.Id == x.StorageId).Id },
+                    Category = new CategoryDTO() { Name = x.Category.Name, Id = x.CategoryId },
+                    Storage = new StorageDTO() { Name = x.Storage.Name, Id = x.StorageId },
                     Price = x.Price,
                     Description = x.Description
                 })
-                .ToListAsync();
+                .ToList();
         }
 
         public async Task<TransactionViewDTO?> GetAsync(int id)
         {
-            var transaction = await _context.Transactions
-                .FirstOrDefaultAsync(x => x.Id == id);
-
-            if (transaction == null)
-            {
-                return null;
-            }
-
-            var storage = await _context.Storages
-                .FirstOrDefaultAsync(x => x.Id == transaction.StorageId);
-
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(x => x.Id == transaction.CategoryId);
+            var transaction = await transactionRepo.GetByIdAsync(id);
 
             return new TransactionViewDTO()
             {
                 Name = transaction.Name,
                 Date = transaction.Date,
-                Category = new CategoryDTO() { Name = category?.Name, Id = category.Id},
-                Storage = new StorageDTO() { Name = storage?.Name, Id = storage.Id},
+                Category = new CategoryDTO() { Name = transaction.Category.Name, Id = transaction.CategoryId},
+                Storage = new StorageDTO() { Name = transaction.Storage.Name, Id = transaction.StorageId},
                 Price = transaction.Price,
                 Description = transaction.Description
             };
@@ -58,11 +42,6 @@ namespace FinanceManager.Services
 
         public async Task<bool> CreateAsync(TransactionCreateDTO transactionData)
         {
-            if (!IsValid(transactionData))
-            {
-                return false;
-            }
-
             var transaction = new Transaction()
             {
                 Name = transactionData.Name,
@@ -73,9 +52,9 @@ namespace FinanceManager.Services
                 StorageId = transactionData.StorageId,
             };
 
-            await _context.Transactions.AddAsync(transaction);
-            await _context.SaveChangesAsync();
-
+            await transactionRepo.AddAsync(transaction);
+            await transactionRepo.SaveAsync();
+            
             return true;
         }
 
@@ -85,15 +64,10 @@ namespace FinanceManager.Services
             {
                 return false;
             }
+            
+            var transaction = await transactionRepo.GetByIdAsync(id);
 
-            if (!_context.Transactions.Any(x => x.Id == transactionData.Id))
-            {
-                return false;
-            }
-
-            var transaction = await _context.Transactions.FirstAsync(x => x.Id == id);
-
-            if (!string.IsNullOrEmpty(transactionData.Name) & transactionData.Name != transaction.Name)
+            if (transactionData.Name != null && transactionData.Name != transaction.Name)
             {
                 transaction.Name = transactionData.Name;
             }
@@ -113,7 +87,7 @@ namespace FinanceManager.Services
                 transaction.Price = transactionData.Price;
             }
             
-            if (transactionData.Description != null & transactionData.Description != transaction.Description)
+            if (transactionData.Description != null && transactionData.Description != transaction.Description)
             {
                 transaction.Description = transactionData.Description;
             }
@@ -125,8 +99,8 @@ namespace FinanceManager.Services
 
             try
             {
-                _context.Update(transaction);
-                await _context.SaveChangesAsync();
+                transactionRepo.Update(transaction);
+                await transactionRepo.SaveAsync();
             }
 
             catch (DbUpdateConcurrencyException)
@@ -139,26 +113,11 @@ namespace FinanceManager.Services
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var transaction = await _context.Transactions
-                .FirstOrDefaultAsync(t => t.Id == id);
+            var transaction = await transactionRepo.GetByIdAsync(id);
 
-            if (transaction is null)
-            {
-                return false;
-            }
+            transactionRepo.Remove(transaction);
+            await transactionRepo.SaveAsync();
 
-            _context.Remove(transaction);
-            await _context.SaveChangesAsync();
-
-            return true;
-        }
-
-        private bool IsValid(TransactionCreateDTO transactionData)
-        {
-            if (transactionData.Name == null & _context.Transactions.FirstOrDefault(t => t.Name == transactionData.Name) != null)
-            {
-                return false;
-            }
             return true;
         }
     }

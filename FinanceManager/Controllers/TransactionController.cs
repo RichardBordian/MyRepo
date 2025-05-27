@@ -1,4 +1,5 @@
 ﻿using FinanceManager.common.DTO;
+using FinanceManager.Interfaces.Services;
 using FinanceManager.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,25 +7,18 @@ namespace FinanceManager.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TransactionController : ControllerBase
+    public class TransactionController(ITransactionServices transactionServices) : ControllerBase
     {
-        private TransactionServices _transactionServices;
-
-        private TransactionController()
-        {}
-
-        public TransactionController(TransactionServices transactionServices) => _transactionServices = transactionServices;
-
         [HttpGet]
         public async Task<List<TransactionDTO>> GetAllAsync()
         {
-            return await _transactionServices.GetAllAsync();
+            return await transactionServices.GetAllAsync();
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<TransactionViewDTO>> GetByIdAsync([FromRoute] int id)
         {
-            var transaction = await _transactionServices.GetAsync(id);
+            var transaction = await transactionServices.GetAsync(id);
 
             return transaction == null ? NotFound() : Ok(transaction);
         }
@@ -37,7 +31,7 @@ namespace FinanceManager.Controllers
                 return BadRequest();
             }
 
-            if(!await _transactionServices.CreateAsync(transactionData))
+            if(!await transactionServices.CreateAsync(transactionData))
             {
                 return BadRequest();
             }
@@ -58,7 +52,7 @@ namespace FinanceManager.Controllers
                 return BadRequest();
             }
 
-            if(!await _transactionServices.EditAsync(id, transactionData))
+            if(!await transactionServices.EditAsync(id, transactionData))
             {
                 return BadRequest();
             }
@@ -69,7 +63,7 @@ namespace FinanceManager.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<bool>> DeleteAsync([FromRoute]int id)
         {
-            var result = await _transactionServices.DeleteAsync(id);
+            var result = await transactionServices.DeleteAsync(id);
 
             return result == false ? BadRequest() : Ok();
         }
