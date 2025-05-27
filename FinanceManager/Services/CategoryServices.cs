@@ -1,52 +1,44 @@
-﻿using FinanceManager.Models;
-using FinanceManager.common.DTO;
-using FinanceManager.Repositories;
+﻿using FinanceManager.common.DTO;
+using FinanceManager.Interfaces;
+using FinanceManager.Interfaces.Services;
+using FinanceManager.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace FinanceManager.Services
 {
-    public class CategoryServices//: IServices<CategoryViewDTO>
+    public class CategoryServices(IRepo<Category> repo) : ICategorySerivces
     {
-        private readonly CategoryRepository _categoryRepository;
-
-        private CategoryServices()
-        { }
-
-        public CategoryServices(CategoryRepository categoryRepository) => _categoryRepository = categoryRepository;
-
         public async Task<List<CategoryDTO>> GetAllAsync()
         {
-            var categories = await _categoryRepository.GetAllAsync();
-
-            return categories
-                .Select(x => new CategoryDTO() { Id = x.Id, Name = x.Name, IsIncome = x.IsIncome })
+            var result = await repo.GetAllAsync();
+            return result
+                .Select(x=> new CategoryDTO() { Id = x.Id, Name = x.Name, IsIncome = x.IsIncome })
                 .ToList();
         }
 
         public async Task<CategoryViewDTO?> GetAsync(int id)
         {
-            var category = await _categoryRepository.GetByIdAsync(id);
-
-            if (category is null)
-            {
-                return null;
-            }
-
-            var transactions = category.Transactions;
-
-            var operations = transactions?.Select(x => new TransactionByCategoryDTO()
-            {
-                Date = x.Date,
-                Description = x.Description,
-                Id = x.Id,
-                Name = x.Name,
-                Price = x.Price,
-                Storage = new StorageDTO() { Id = x.Storage.Id, Name = x.Storage.Name, Value = x.Storage.Value },
-            })
-                .ToList();
-
-            return new CategoryViewDTO() { Id = category.Id, Name = category.Name, Description = category.Description, IsIncome = category.IsIncome, Transactions = operations };
+            var temp = await repo.GetTransactionsAsyncByOwnId(id);
+            
+            var transactions = temp
+                    .Where(x => x.CategoryId == id)
+                    .Select(x => new TransactionByCategoryDTO()
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        Date = x.Date,
+                        Storage = new StorageDTO() { Name = x.Storage.Name, Id = x.StorageId, },
+                        Price = x.Price,
+                        Description = x.Description
+                    })
+                    .ToList()
+                ;
+            var category = temp.Select(x => x.Category).FirstOrDefault(x => x.Id == id);
+            
+            return category == null
+                ? null
+                : new CategoryViewDTO() { Id = category.Id, Name = category.Name, Description = category.Description, IsIncome = category.IsIncome, Transactions = transactions };
         }
-
         public async Task<bool> CreateAsync(CategoryCreateDTO categoryData)
         {
             var category = new Category()
@@ -55,8 +47,10 @@ namespace FinanceManager.Services
                 Description = categoryData.Description,
                 IsIncome = categoryData.IsIncome
             };
+            await repo.AddAsync(category);
+            await repo.SaveAsync();
 
-            return await _categoryRepository.CreateAsync(category);
+            return true;
         }
 
         public async Task<bool> EditAsync(int id, CategoryUpdateDTO categoryData)
@@ -65,8 +59,19 @@ namespace FinanceManager.Services
             {
                 return false;
             }
+            var category = await repo.GetByIdAsync(id);
 
-            var category = new Category()
+            if (categoryData.Name != null && category.Name != categoryData.Name)
+            {
+                category.Name = categoryData.Name;
+            }
+
+            if (categoryData.Description != null && category.Description != categoryData.Description)
+            {
+                category.Description = categoryData.Description;
+            }
+
+            if (category.IsIncome != categoryData.IsIncome)
             {
                 Name = categoryData.Name == null ? "" : categoryData.Name,
                 Description = categoryData.Description,
@@ -76,8 +81,8 @@ namespace FinanceManager.Services
 
             try
             {
-                await _categoryRepository.EditAsync(category);
-                return true;
+                repo.Update(category);
+                await repo.SaveAsync();
             }
             catch
             {
@@ -87,15 +92,17 @@ namespace FinanceManager.Services
 
         public async Task<bool> DeleteAsync(int id)
         {
-            try
+            var category = await repo.GetByIdAsync(id);
+
+            if (category.Transactions != null)
             {
-                await _categoryRepository.DeleteAsync(id);
-                return true;
+                throw new Exception("This category contain transaction");
             }
-            catch
-            {
-                return false;
-            }
+
+            repo.Remove(category);
+            await repo.SaveAsync();
+
+            return true;
         }
     }
 }

@@ -1,30 +1,24 @@
-﻿using FinanceManager.Models;
+using FinanceManager.Models;
 using FinanceManager.common.DTO;
-using FinanceManager.Repositories;
+using FinanceManager.Interfaces;
+using FinanceManager.Interfaces.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace FinanceManager.Services
 {
-    public class TransactionServices
+    public class TransactionServices(IRepo<Transaction> transactionRepo) : ITransactionServices
     {
-        private readonly TransactionRepository _transactionRepository;
-
-        private TransactionServices()
-        { }
-
-        public TransactionServices(TransactionRepository transactionRepository) => _transactionRepository = transactionRepository;
-
         public async Task<List<TransactionDTO>> GetAllAsync()
         {
-            var transactions = await _transactionRepository.GetAllAsync();
-
+            var transactions = await transactionRepo.GetAllAsync();
             return transactions
                 .Select(x => new TransactionDTO()
                 {
                     Id = x.Id,
                     Name = x.Name,
                     Date = x.Date,
-                    Category = new CategoryDTO() { Name = x.Category.Name, Id = x.Category.Id },
-                    Storage = new StorageDTO() { Name = x.Storage.Name, Id = x.Storage.Id },
+                    Category = new CategoryDTO() { Name = x.Category.Name, Id = x.CategoryId },
+                    Storage = new StorageDTO() { Name = x.Storage.Name, Id = x.StorageId },
                     Price = x.Price,
                     Description = x.Description,
                 })
@@ -33,19 +27,14 @@ namespace FinanceManager.Services
 
         public async Task<TransactionViewDTO?> GetAsync(int id)
         {
-            var transaction = await _transactionRepository.GetByIdAsync(id);
-
-            if (transaction == null)
-            {
-                return null;
-            }
+            var transaction = await transactionRepo.GetByIdAsync(id);
 
             return new TransactionViewDTO()
             {
                 Name = transaction.Name,
                 Date = transaction.Date,
-                Category = new CategoryDTO() { Name = transaction.Category.Name, Id = transaction.Category.Id},
-                Storage = new StorageDTO() { Name = transaction.Storage.Name, Id = transaction.Storage.Id},
+                Category = new CategoryDTO() { Name = transaction.Category.Name, Id = transaction.CategoryId},
+                Storage = new StorageDTO() { Name = transaction.Storage.Name, Id = transaction.StorageId},
                 Price = transaction.Price,
                 Description = transaction.Description
             };
@@ -63,7 +52,10 @@ namespace FinanceManager.Services
                 StorageId = transactionData.StorageId,
             };
 
-            return await _transactionRepository.CreateAsync(transaction);
+            await transactionRepo.AddAsync(transaction);
+            await transactionRepo.SaveAsync();
+            
+            return true
         }
 
         public async Task<bool> EditAsync(int id, TransactionUpdateDTO transactionData)
@@ -72,8 +64,35 @@ namespace FinanceManager.Services
             {
                 return false;
             }
+            
+            var transaction = await transactionRepo.GetByIdAsync(id);
 
-            var transaction = new Transaction()
+            if (transactionData.Name != null && transactionData.Name != transaction.Name)
+            {
+                transaction.Name = transactionData.Name;
+            }
+
+            if (transactionData.Date != transaction.Date)
+            {
+                transaction.Date = transactionData.Date;
+            }
+            
+            if (transactionData.CategoryId != transaction.CategoryId)
+            {
+                transaction.CategoryId = transactionData.CategoryId;
+            }
+            
+            if (transactionData.Price != transaction.Price)
+            {
+                transaction.Price = transactionData.Price;
+            }
+            
+            if (transactionData.Description != null && transactionData.Description != transaction.Description)
+            {
+                transaction.Description = transactionData.Description;
+            }
+            
+            if (transactionData.StorageId != transaction.StorageId)
             {
                 Name = transactionData.Name == null ? "" : transactionData.Name,
                 Date = transactionData.Date,
@@ -85,8 +104,8 @@ namespace FinanceManager.Services
 
             try
             {
-                await _transactionRepository.EditAsync(transaction);
-                return true;
+                transactionRepo.Update(transaction);
+                await transactionRepo.SaveAsync();
             }
             catch
             {
@@ -96,16 +115,12 @@ namespace FinanceManager.Services
 
         public async Task<bool> DeleteAsync(int id)
         {
-            try
-            {
-                await _transactionRepository.DeleteAsync(id);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
+            var transaction = await transactionRepo.GetByIdAsync(id);
 
+            transactionRepo.Remove(transaction);
+            await transactionRepo.SaveAsync();
+
+            return true;
+        }
     }
 }

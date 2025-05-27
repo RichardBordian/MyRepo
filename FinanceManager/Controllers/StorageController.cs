@@ -1,4 +1,5 @@
 ﻿using FinanceManager.common.DTO;
+using FinanceManager.Interfaces.Services;
 using FinanceManager.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,25 +7,18 @@ namespace FinanceManager.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class StorageController : ControllerBase
+    public class StorageController(IStorageServices storageServices) : ControllerBase
     {
-        private StorageServices _storageServices;
-
-        private StorageController()
-        { }
-
-        public StorageController(StorageServices storageServices) => _storageServices = storageServices;
-
         [HttpGet]
         public async Task<List<StorageDTO>> GetAllAsync()
         {
-            return await _storageServices.GetAllAsync();
+            return await storageServices.GetAllAsync();
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<StorageViewDTO>> GetByIdAsync([FromRoute] int id)
         {
-            var storage = await _storageServices.GetAsync(id);
+            var storage = await storageServices.GetAsync(id);
 
             return storage == null ? NotFound() : Ok(storage);
         }
@@ -37,7 +31,7 @@ namespace FinanceManager.Controllers
                 return BadRequest();
             }
 
-            if (!await _storageServices.CreateAsync(storageData))
+            if (!await storageServices.CreateAsync(storageData))
             {
                 return BadRequest();
             }
@@ -58,7 +52,7 @@ namespace FinanceManager.Controllers
                 return NotFound();
             }
 
-            if (!await _storageServices.EditAsync(id, storageData))
+            if (!await storageServices.EditAsync(id, storageData))
             {
                 return BadRequest();
             }
@@ -71,7 +65,7 @@ namespace FinanceManager.Controllers
         {
             try
             {
-                if (!await _storageServices.DeleteAsync(id))
+                if (!await storageServices.DeleteAsync(id))
                 {
                     return BadRequest();
                 }

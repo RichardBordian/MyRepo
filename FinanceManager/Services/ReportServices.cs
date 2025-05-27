@@ -1,82 +1,86 @@
-﻿using FinanceManager.common.DTO;
-using FinanceManager.Repositories;
+﻿using System.Transactions;
+using FinanceManager.common.DTO;
+using FinanceManager.Interfaces;
+using FinanceManager.Interfaces.Services;
 
 namespace FinanceManager.Services
 {
-    public class ReportServices
+    public class ReportServices(IRepo<Transaction> repo) : IReportService
     {
-        private readonly ReportRepository _reportRepository;
-        private ReportServices() { }
-
-        public ReportServices(ReportRepository reportRepository) => _reportRepository = reportRepository;
-
-        public ReportDTO DailyReport(DateTime date)
+        public async Task<ReportDTO> DailyReport(DateTime date)
         {
-            var operations = _reportRepository.GetDaily(date);
-
-            var transactions = operations
+            var temp = await repo.GetDailyReport(date);
+            var transactions = temp
                 .Select(x => new TransactionDTO()
                 {
                     Id = x.Id,
                     Name = x.Name,
                     Date = x.Date,
-                    Category = new CategoryDTO() { Name = x.Category.Name, Id = x.Category.Id },
-                    Storage = new StorageDTO() { Name = x.Storage.Name, Id = x.Storage.Id },
+                    Category = new CategoryDTO() { Name = x.Category.Name, Id = x.CategoryId },
+                    Storage = new StorageDTO() { Name = x.Storage.Name, Id = x.StorageId },
                     Price = x.Price,
                     Description = x.Description
                 })
                 .ToList();
 
-            double totalIncome = transactions
+            var totalIncome = transactions
                 .Where(x => x.Price > 0)
                 .Select(x => x.Price)
                 .Sum();
 
-            double totalExpences = transactions
+            var totalExpenses = transactions
                 .Where(x => x.Price < 0)
                 .Select(x => x.Price)
                 .Sum();
 
             return new ReportDTO
-            { 
-                TotalExpenses = totalExpences, 
-                TotalIncome = totalIncome, 
-                Transactions = transactions };
+            {
+                TotalExpenses = totalExpenses,
+                TotalIncome = totalIncome,
+                Transactions = transactions
+            };
         }
 
-        public ReportDTO PeriodReport(DateTime startDate, DateTime endDate)
+        public async Task<ReportDTO> PeriodReport(DateTime startDate, DateTime endDate)
         {
-            if(startDate > endDate)
+            if (startDate > endDate)
             {
                 throw new Exception("End date must be bigger than start date");
             }
-
-            var operations = _reportRepository.GetPeriod(startDate, endDate);
-
-            var transactions = operations
+            var temp = await repo.GetPeriodReport(startDate, endDate);
+            var transactions = temp
                 .Select(x => new TransactionDTO()
                 {
                     Id = x.Id,
                     Name = x.Name,
                     Date = x.Date,
-                    Category = new CategoryDTO() { Name = x.Category.Name, Id = x.Category.Id},
-                    Storage = new StorageDTO() { Name = x.Storage.Name, Id = x.Storage.Id },
+                    Category = new CategoryDTO()
+                    {
+                        Name = x.Category.Name,
+                        Id = x.CategoryId
+                    },
+                    Storage = new StorageDTO()
+                    {
+                        Name = x.Category.Name,
+                        Id = x.CategoryId,
+                    },
                     Price = x.Price,
                     Description = x.Description
                 })
                 .ToList();
-                
-            double totalIncome = transactions
+
+            var totalIncome = transactions
                 .Where(x => x.Price >= 0)
                 .Select(x => x.Price)
                 .Sum();
 
-            double totalExpences = transactions
+            var totalExpenses = transactions
                 .Where(x => x.Price < 0)
                 .Select(x => x.Price)
                 .Sum();
 
-            return new ReportDTO { TotalExpenses = totalExpences, TotalIncome = totalIncome, Transactions = transactions };
+            return new ReportDTO
+                { TotalExpenses = totalExpenses, TotalIncome = totalIncome, Transactions = transactions };
         }
     }
 }
