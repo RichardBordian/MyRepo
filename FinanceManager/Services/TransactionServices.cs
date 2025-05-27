@@ -1,4 +1,4 @@
-﻿using FinanceManager.Models;
+using FinanceManager.Models;
 using FinanceManager.common.DTO;
 using FinanceManager.Interfaces;
 using FinanceManager.Interfaces.Services;
@@ -20,7 +20,7 @@ namespace FinanceManager.Services
                     Category = new CategoryDTO() { Name = x.Category.Name, Id = x.CategoryId },
                     Storage = new StorageDTO() { Name = x.Storage.Name, Id = x.StorageId },
                     Price = x.Price,
-                    Description = x.Description
+                    Description = x.Description,
                 })
                 .ToList();
         }
@@ -55,7 +55,7 @@ namespace FinanceManager.Services
             await transactionRepo.AddAsync(transaction);
             await transactionRepo.SaveAsync();
             
-            return true;
+            return true
         }
 
         public async Task<bool> EditAsync(int id, TransactionUpdateDTO transactionData)
@@ -94,21 +94,23 @@ namespace FinanceManager.Services
             
             if (transactionData.StorageId != transaction.StorageId)
             {
-                transaction.StorageId = transactionData.StorageId;
-            }
+                Name = transactionData.Name == null ? "" : transactionData.Name,
+                Date = transactionData.Date,
+                CategoryId = transactionData.CategoryId,
+                Price = transactionData.Price,
+                Description = transactionData.Description,
+                StorageId = transactionData.StorageId,
+            };
 
             try
             {
                 transactionRepo.Update(transaction);
                 await transactionRepo.SaveAsync();
             }
-
-            catch (DbUpdateConcurrencyException)
+            catch
             {
-                throw new Exception("Update exception");
+                return false;
             }
-
-            return true;
         }
 
         public async Task<bool> DeleteAsync(int id)

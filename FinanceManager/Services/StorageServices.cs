@@ -1,4 +1,4 @@
-﻿using FinanceManager.common.DTO;
+using FinanceManager.common.DTO;
 using FinanceManager.Interfaces;
 using FinanceManager.Interfaces.Services;
 using FinanceManager.Models;
@@ -39,7 +39,6 @@ namespace FinanceManager.Services
 
         public async Task<bool> CreateAsync(StorageCreateDTO storageData)
         {
-
             var storage = new Storage()
             {
                 Name = storageData.Name,
@@ -58,7 +57,6 @@ namespace FinanceManager.Services
             {
                 return false;
             }
-
             var storage = await storageRepo.GetByIdAsync(id);
 
             if (storageData.Name != null && storage.Name != storageData.Name)
@@ -84,12 +82,10 @@ namespace FinanceManager.Services
                 storageRepo.Update(storage);
                 await storageRepo.SaveAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch
             {
-                throw new Exception("Update exception");
+                return false;
             }
-
-            return true;
         }
 
         public async Task<bool> DeleteAsync(int id)
@@ -97,8 +93,10 @@ namespace FinanceManager.Services
             var storage = await storageRepo.GetByIdAsync(id);
 
             if (storage.Transactions != null)
+
             {
-                throw new Exception("This storage contain transactions");
+                await _storageRepository.DeleteAsync(id);
+                return true;
             }
 
             storageRepo.Remove(storage);

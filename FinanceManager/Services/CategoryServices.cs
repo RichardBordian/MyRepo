@@ -39,16 +39,14 @@ namespace FinanceManager.Services
                 ? null
                 : new CategoryViewDTO() { Id = category.Id, Name = category.Name, Description = category.Description, IsIncome = category.IsIncome, Transactions = transactions };
         }
-
         public async Task<bool> CreateAsync(CategoryCreateDTO categoryData)
         {
             var category = new Category()
-            { 
-                Name = categoryData.Name, 
+            {
+                Name = categoryData.Name,
                 Description = categoryData.Description,
-                IsIncome = categoryData.IsIncome 
+                IsIncome = categoryData.IsIncome
             };
-
             await repo.AddAsync(category);
             await repo.SaveAsync();
 
@@ -61,7 +59,6 @@ namespace FinanceManager.Services
             {
                 return false;
             }
-
             var category = await repo.GetByIdAsync(id);
 
             if (categoryData.Name != null && category.Name != categoryData.Name)
@@ -76,21 +73,21 @@ namespace FinanceManager.Services
 
             if (category.IsIncome != categoryData.IsIncome)
             {
-                category.IsIncome = categoryData.IsIncome;
-            }
+                Name = categoryData.Name == null ? "" : categoryData.Name,
+                Description = categoryData.Description,
+                IsIncome = categoryData.IsIncome,
+                Id = categoryData.Id,
+            };
 
             try
             {
                 repo.Update(category);
                 await repo.SaveAsync();
             }
-
-            catch (DbUpdateConcurrencyException)
+            catch
             {
-                throw new Exception("Update exception");
+                return false;
             }
-
-            return true;
         }
 
         public async Task<bool> DeleteAsync(int id)

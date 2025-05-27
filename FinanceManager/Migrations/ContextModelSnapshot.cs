@@ -42,7 +42,7 @@ namespace FinanceManager.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("FinanceManager.Models.Storage", b =>
@@ -62,7 +62,7 @@ namespace FinanceManager.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Storages");
+                    b.ToTable("Storages", (string)null);
                 });
 
             modelBuilder.Entity("FinanceManager.Models.Transaction", b =>
@@ -98,7 +98,7 @@ namespace FinanceManager.Migrations
 
                     b.HasIndex("StorageId");
 
-                    b.ToTable("Transactions");
+                    b.ToTable("Transactions", (string)null);
                 });
 
             modelBuilder.Entity("FinanceManager.Models.Transaction", b =>

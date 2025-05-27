@@ -47,7 +47,6 @@ namespace FinanceManager.Services
             {
                 throw new Exception("End date must be bigger than start date");
             }
-
             var temp = await repo.GetPeriodReport(startDate, endDate);
             var transactions = temp
                 .Select(x => new TransactionDTO()
